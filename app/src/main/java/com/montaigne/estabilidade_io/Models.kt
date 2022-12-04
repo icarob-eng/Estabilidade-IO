@@ -32,6 +32,8 @@ data class Load(val knot: Knot, val vector: Vector)
 data class DistributedLoad(val knots: List<Knot>, val module: Int) {
     init {if (knots.size != 2)
             throw InvalidPropertiesFormatException("Uma barra deve possuir dois nós")}
+
+    fun getEqLoad(): Load = TODO()
 }
 
 
