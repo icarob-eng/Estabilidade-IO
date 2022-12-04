@@ -2,6 +2,13 @@ package com.montaigne.estabilidade_io
 
 import java.util.InvalidPropertiesFormatException
 
+object Consts {
+    @JvmField
+    val HORIZONTAL = Vector(1F, 0F)
+    @JvmField
+    val VERTICAL = Vector(0F, 1F)
+}
+
 data class Vector(val x: Float, val y: Float) {
     operator fun plus(other: Vector) = Vector(this.x + other.x, this.y + other.y)
 
