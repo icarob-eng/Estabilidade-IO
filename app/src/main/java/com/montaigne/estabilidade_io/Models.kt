@@ -31,14 +31,15 @@ data class Vector(val x: Float, val y: Float) {
 }
 
 
-data class Knot(val name: String, val pos: Vector, val structure: Structure) {
+data class Knot(val name: String, val pos: Vector, val structure: Structure?) {
     var support: Support? = null  // only one support by knot
+    var momentum = 0F
     val bars: MutableList<Bar> = mutableListOf()
     val loads: MutableList<Load> = mutableListOf()
     val distributedLoads: MutableList<DistributedLoad> = mutableListOf()
 
     init {
-        structure.knots.add(this)
+        structure?.knots?.add(this)  // null for temporary knots
     }
 }
 
@@ -75,15 +76,21 @@ data class DistributedLoad(val knot1: Knot, val knot2: Knot, val norm: Float) {
         knot2.distributedLoads.add(this)
     }
 
-    fun getEqLoad(structure: Structure) = Load(  // TODO: check if there are another knot in the specified point
+    fun getEqvLoad() = Load(
         Knot(knot1.name + knot2.name,
             (knot1.pos + knot2.pos) / 2F,  // midpoint
-            structure),
+            null),
         (knot2.pos - knot1.pos).getNormal() * (knot2.pos - knot1.pos).modulus() * norm
         // bisector vector times modulus of the entire distributed force
     )
 }
 
 
-data class Structure(val name: String, val knots: MutableList<Knot> = mutableListOf())
+data class Structure(val name: String, val knots: MutableList<Knot> = mutableListOf()) {
+    fun getSupports() = knots.mapNotNull { it.support }
+    fun getBars() = knots.flatMap { it.bars }
+    fun getLoads() = knots.flatMap { it.loads }
+    fun getDistributedLoads() = knots.flatMap { it.distributedLoads }
+    fun getEqvLoads() = getLoads() + getDistributedLoads().map { it.getEqvLoad() }
+}
 
