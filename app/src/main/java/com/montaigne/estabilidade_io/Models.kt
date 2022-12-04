@@ -1,6 +1,5 @@
 package com.montaigne.estabilidade_io
 
-import java.util.InvalidPropertiesFormatException
 import kotlin.math.sqrt
 
 object Consts {
@@ -8,6 +7,10 @@ object Consts {
     val HORIZONTAL = Vector(1F, 0F)
     @JvmField
     val VERTICAL = Vector(0F, 1F)
+}
+
+enum class SupportGender (val reactions: Int){
+    FIRST(1), SECOND(2), THIRD(3)
 }
 
 data class Vector(val x: Float, val y: Float) {
@@ -28,25 +31,59 @@ data class Vector(val x: Float, val y: Float) {
 }
 
 
-data class Knot(val name: String, val pos: Vector)
+data class Knot(val name: String, val pos: Vector, val structure: Structure) {
+    var support: Support? = null  // only one support by knot
+    val bars: MutableList<Bar> = mutableListOf()
+    val loads: MutableList<Load> = mutableListOf()
+    val distributedLoads: MutableList<DistributedLoad> = mutableListOf()
 
-data class Support(val knot: Knot, val gender: Int, val direction: Vector)
+    init {
+        structure.knots.add(this)
+    }
+}
 
-data class Bar(val knot1: Knot, val knot2: Knot)
+data class Support(val knot: Knot, val gender: SupportGender, val dir: Vector) {
+    val direction: Vector = dir.normalize()
+
+    init { knot.support = this }
+
+    fun getReactions(): Triple<Vector, Vector?, Float?> {
+        return when (gender) {
+            SupportGender.FIRST -> Triple(direction, null, null)
+            SupportGender.SECOND -> Triple(direction, direction.getNormal(), null)
+            SupportGender.THIRD -> Triple(direction, direction.getNormal(), 0F)
+        }
+    }
+}
+
+data class Bar(val knot1: Knot, val knot2: Knot) {
+    init {
+        knot1.bars.add(this)
+        knot2.bars.add(this)
+    }
+}
 
 
-data class Load(val knot: Knot, val vector: Vector)
+data class Load(val knot: Knot, val vector: Vector) {
+    init { knot.loads.add(this) }
+}
 
-// forças normais ao comprimento da carga
+// forces are assumed to be normal to the load length
 data class DistributedLoad(val knot1: Knot, val knot2: Knot, val norm: Float) {
-    fun getEqLoad() = Load(
-        Knot(knot1.name + knot2.name, (knot1.pos + knot2.pos) / 2F),  // midpoint
+    init {
+        knot1.distributedLoads.add(this)
+        knot2.distributedLoads.add(this)
+    }
+
+    fun getEqLoad(structure: Structure) = Load(  // TODO: check if there are another knot in the specified point
+        Knot(knot1.name + knot2.name,
+            (knot1.pos + knot2.pos) / 2F,  // midpoint
+            structure),
         (knot2.pos - knot1.pos).getNormal() * (knot2.pos - knot1.pos).modulus() * norm
         // bisector vector times modulus of the entire distributed force
     )
 }
 
 
-data class Structure(val name: String, val knot: List<Knot>, val support: Support, val bars: List<Bar>,
-                     val loads: List<Load>, val distributedLoads: List<DistributedLoad>)
+data class Structure(val name: String, val knots: MutableList<Knot> = mutableListOf())
 
