@@ -7,7 +7,7 @@ utlizadas pelo projeto Estabilidade.io.
 
 ## Algebra linear
 
-As operações de algebra linear foram definidas dentro da classe `Vector`, transcrita abaixo:
+As operações de algebra linear foram definidas dentro da classe [`Vector`](https://github.com/icarob-eng/Estabilidade-IO/blob/main/app/src/main/java/com/montaigne/estabilidade_io/Models.kt), transcrita abaixo:
 
 ```kotlin
 data class Vector(val x: Float, val y: Float) {
@@ -45,7 +45,6 @@ $\hat{A} = \frac{\vec{A}}{|\vec{A}|}$
 Produto escalar:
 
 $\vec{A} \cdot \vec{B} = A_x \times B_x + A_y \times B_y$
-
 
 Para o produto vetorial, se obtêm apenas seu módulo, uma vez que o projeto se limita a duas dimensões
 
@@ -100,6 +99,17 @@ e
 
 $\vec{F_e} = (getNormal(\vec{P_2} - \vec{P_1}) \cdot |\vec{P_2} - \vec{P_1}|) \times N$
 
+A implementação das equações foi esta:
+
+```kotlin
+fun getEqvLoad() = Load(
+        Knot(knot1.name + knot2.name,
+            (knot1.pos + knot2.pos) / 2F,  // midpoint
+            null),
+        (knot2.pos - knot1.pos).getNormal() * (knot2.pos - knot1.pos).modulus() * norm
+        )
+```
+
 ### Somatório de cargas e momentos fletores
 
 O somatório das cargas foi definido como o somatório vetorial $\Sigma \vec{F}$, 
@@ -109,3 +119,15 @@ O somatório dos momentos fletores foi definido como $\Sigma |\vec{F} \times \ve
 $\vec{P}$ é definido como a diferença vetorial entre o ponto de aplicação da força e
 o nó que serve como eixo de rotação.
 
+## Cáculo dos esforços nas barras
+
+### Determinação das reações (não implementado)
+
+Até o momento não foi feita a determinação das reações, tendo se cogitado o seguinte
+procedimento: a partir da quantidade e tipos de apoios, usar algoritmos diferentes para
+adicionar cargas de ração, sejam forças ou momentos fletores nos nós dos apoios.
+
+### Etc
+
+Os demais procedimentos de cálculos, como gráfico de esforço cortante ainda não foram implementados
+e sequer planejados.
