@@ -1,4 +1,4 @@
-package com.moon.estabilidade_io.charter
+package com.moon.estabilidade_io.drawer
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -23,19 +23,26 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
 
 
+data class DrawArgs @OptIn(ExperimentalTextApi::class) constructor(
+    var scaleValue: Float,
+    var offsetValue: Offset,
+    var rotationValue: Float,
+    val textMeasurer: TextMeasurer
+)
+
 @OptIn(ExperimentalTextApi::class)
 @Composable
 fun MainCanvas(modifier: Modifier) {  // todo: pass structure data as argument
     // gesture handling:
-    var scale by remember { mutableStateOf(1f) }
-//    var rotation by remember { mutableStateOf(0f) }
-    var offset by remember { mutableStateOf(Offset.Zero) }
+    var scaleValue by remember { mutableStateOf(1f) }
+//    var rotationValue by remember { mutableStateOf(0f) }
+    var offsetValue by remember { mutableStateOf(Offset.Zero) }
     val transformableState = rememberTransformableState { zoomChange, _, _ -> // offsetChange, rotationChange ->
         // update only scale gesture from dual touch input
         // (translation is updated from single touch input)
-        scale *= zoomChange
-//        rotation += rotationChange
-//        offset += offsetChange
+        scaleValue *= zoomChange
+//        rotationValue += rotationChange
+//        offsetValue += offsetChange
     }
     val textMeasurer = rememberTextMeasurer()
 
@@ -44,18 +51,18 @@ fun MainCanvas(modifier: Modifier) {  // todo: pass structure data as argument
         .pointerInput(Unit) {
             detectDragGestures { change, dragAmount ->
                 change.consume()
-                offset += dragAmount
+                offsetValue += dragAmount
             }
         }  // detect translation from single touch input
         .transformable(transformableState)  // detects rotation and dual touch, etc
     ) {
-        scale(scale, scale) { translate (offset.x, offset.y) {
-            // --- drawing stuff goes here ---
-            drawTest(5f) // draw scale test
-            // --- drawing stuff ends here ---
-        }
-            drawScale(textMeasurer)  // remains in the same place
-        }
+
+        val dA= DrawArgs(scaleValue, offsetValue, 0f, textMeasurer)
+
+        translate (offsetValue.x, offsetValue.y) { scale(scaleValue, scaleValue) {
+            drawStructure(dA)
+        }}
+        drawScaleLabel(dA)  // remains in the same place
 
     }
 }
