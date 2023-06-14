@@ -1,5 +1,6 @@
 package com.moon.estabilidade_io.drawer
 
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -13,6 +14,11 @@ object Preferences {
     val scaleRightMargin = 30.dp
     val scaleBottomMargin = 30.dp
 
-    val textSize = 12.sp
-    val textLineSize = 20.sp
+    val textSize = 20.sp
+    val textLineSize = 30.sp
+
+    // scale of the hinge (default size is 1 m square)
+    val supportSide = 0.25f
+    val supportColor1 = Color.Red
+    val supportColor2 = Color.DarkGray
 }
