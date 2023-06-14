@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 /**
  * Base unit: 1 meter = 50 dp, which means: 3m beam would measure, by default, 150 dp
 */
-fun DrawScope.drawAxisScale(textMeasurer: TextMeasurer) {
+fun DrawScope.drawScale(textMeasurer: TextMeasurer) {
     val baseLength = 50.dp
     val baseOffset = Offset(30.dp.toPx(), (center.x + 100f).dp.toPx())
     val endOffset = baseOffset + Offset(baseLength.toPx(), 0f)

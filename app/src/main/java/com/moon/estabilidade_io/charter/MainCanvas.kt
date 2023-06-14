@@ -14,9 +14,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
 
@@ -28,8 +30,9 @@ fun MainCanvas(modifier: Modifier) {  // todo: pass structure data as argument
     var scale by remember { mutableStateOf(1f) }
 //    var rotation by remember { mutableStateOf(0f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
-    val state = rememberTransformableState { zoomChange, _, _ -> // offsetChange, rotationChange ->
-        // update only scale from dual touch input (translation updated from single touch input)
+    val transformableState = rememberTransformableState { zoomChange, _, _ -> // offsetChange, rotationChange ->
+        // update only scale gesture from dual touch input
+        // (translation is updated from single touch input)
         scale *= zoomChange
 //        rotation += rotationChange
 //        offset += offsetChange
@@ -38,24 +41,22 @@ fun MainCanvas(modifier: Modifier) {  // todo: pass structure data as argument
 
     Canvas (modifier =
     modifier
-        .graphicsLayer(
-            scaleX = scale,
-            scaleY = scale,
-            rotationZ = 0f, // rotation,  // rotation removed
-            translationX = offset.x,
-            translationY = offset.y
-        )  // **applies** the changes to the canvas
         .pointerInput(Unit) {
             detectDragGestures { change, dragAmount ->
                 change.consume()
                 offset += dragAmount
             }
-        }  // allows translation with single touch
-        .transformable(state)  // allows rotation and dual touch, etc
+        }  // detect translation from single touch input
+        .transformable(transformableState)  // detects rotation and dual touch, etc
     ) {
-        // drawing stuff here
-        drawAxisScale(textMeasurer)
-        drawTest(5f) // draw scale test
+        scale(scale, scale) { translate (offset.x, offset.y) {
+            // --- drawing stuff goes here ---
+            drawTest(5f) // draw scale test
+            // --- drawing stuff ends here ---
+        }
+            drawScale(textMeasurer)  // remains in the same place
+        }
+
     }
 }
 
