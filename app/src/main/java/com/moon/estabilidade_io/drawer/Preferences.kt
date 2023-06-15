@@ -21,4 +21,7 @@ object Preferences {
     val supportSide = 0.25f
     val supportColor1 = Color.Red
     val supportColor2 = Color.DarkGray
+    val supportColor3 = Color.Yellow
+
+    val showEdges = false
 }
