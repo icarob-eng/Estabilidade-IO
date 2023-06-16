@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
@@ -130,6 +131,25 @@ fun DrawScope.drawBeam(offset1: Offset, offset2: Offset) {
         end = offset2,
         strokeWidth = s/15,
     )
+    if (Preferences.showEdges) {
+        val beam = (offset2 - offset1)/(offset2 - offset1).getDistance() * s/25f
+        translate(- beam.y, beam.x) {
+            drawLine(
+                color = Preferences.beamColor2,
+                start = offset1,
+                end = offset2,
+                strokeWidth = s / 50,
+            )
+        }
+        translate(+ beam.y,- beam.x) {
+            drawLine(
+                color = Preferences.beamColor2,
+                start = offset1,
+                end = offset2,
+                strokeWidth = s / 50,
+            )
+        }
+    }
 }
 
 fun DrawScope.drawNode(appliedNodeOffset: Offset) {
@@ -145,6 +165,37 @@ fun DrawScope.drawNode(appliedNodeOffset: Offset) {
         center = appliedNodeOffset,
         radius = s/25,
         style = Stroke(s/50)
+    )
+}
+
+/**
+ * Plot the chart of the given `Axes` on the specified locations. The plot direction, origin and
+ * vertical scale is specified by the arguments.
+ *
+ * @param axes Axes to be plotted. The x-axis (in length units) will be distributed along the origin
+ * to xLength vector, while the y-axis will be plotted perpendicularly to said vector.
+ * @param color
+ * @param origin Offset where the plot will begin, the "0" point of the plot.
+ * @param xLength Offset representing where the x-axis will end.
+ * @param yScale Float that the termines the relation between the plot y-axis scale and the Canvas
+ * pixel count. yScale = 1 means that each unit in the y-axis will represent 1 pixel.
+ */
+fun DrawScope.chart(axes: Axes, color: Color, origin: Offset, xLength: Offset, yScale: Float) {
+    val iHat = (xLength - origin)
+    val jHat = Offset(-iHat.y, iHat.x)/iHat.getDistance() * yScale  // todo: test if this is accepted
+
+    val path = Path()
+    path.moveTo(origin.x, origin.y)
+    for (i in 1 until axes.first.size) {
+        val k = axes.first[i] / axes.first.last()
+        val xVec = iHat * k
+        val p = xVec + jHat * axes.second[i]
+        path.lineTo(p.x, p.y)
+    }
+    drawPath(
+        path = path,
+        color = color,
+        style = Stroke(Preferences.chartWidth)
     )
 }
 
