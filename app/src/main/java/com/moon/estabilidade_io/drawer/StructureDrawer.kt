@@ -3,11 +3,13 @@
 package com.moon.estabilidade_io.drawer
 
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
@@ -17,9 +19,16 @@ import androidx.compose.ui.unit.dp
 fun DrawScope.drawStructure(drawArgs: DrawArgs) {  // todo: pass structure data as argument
     drawTest(1f) // draw scale test
     // scale and rotate elements here
-    drawFixed(center)
-}
 
+    val offset = Offset(Preferences.baseScale.toPx()/2, 0f)
+
+    drawBeam(
+        center + offset,
+        center - offset,
+    )
+    drawNode(center + offset)
+    drawNode(center - offset)
+}
 
 fun DrawScope.drawScaleLabel(drawArgs: DrawArgs) {
     val s = Preferences.baseScale.toPx()
@@ -61,7 +70,7 @@ private fun DrawScope.drawTriangle(topPoint: Offset) {
         )
 }
 
-fun DrawScope.drawCenteredHatches(middlePoint: Offset, nHatches: Int = 5) {
+private fun DrawScope.drawCenteredHatches(middlePoint: Offset, nHatches: Int = 5) {
     val s = Preferences.baseScale.toPx()
 
     val endOffset = middlePoint + Offset(s/2, 0f)
@@ -86,52 +95,106 @@ fun DrawScope.drawCenteredHatches(middlePoint: Offset, nHatches: Int = 5) {
 fun DrawScope.drawRoller(appliedNodeOffset: Offset) {
     val s = Preferences.baseScale.toPx()
 
-    drawCenteredHatches(appliedNodeOffset + Offset(0f,s * 4/5))
-    drawCircle(
-        color = Preferences.supportColor1,
-        radius = s/2 * 4/5,
-        center = appliedNodeOffset + Offset(0f, s/2 * 4/5)
-    )
-    if (Preferences.showEdges)
+    scale(Preferences.supportSide, Preferences.supportSide) {
+        drawCenteredHatches(appliedNodeOffset + Offset(0f, s * 4 / 5))
         drawCircle(
-            color = Preferences.supportColor3,
-            radius = s/2 * 4/5,
-            center = appliedNodeOffset + Offset(0f, s/2 * 4/5),
-            style = Stroke(s/25)
+            color = Preferences.supportColor1,
+            radius = s / 2 * 4 / 5,
+            center = appliedNodeOffset + Offset(0f, s / 2 * 4 / 5)
         )
+        if (Preferences.showEdges)
+            drawCircle(
+                color = Preferences.supportColor3,
+                radius = s / 2 * 4 / 5,
+                center = appliedNodeOffset + Offset(0f, s / 2 * 4 / 5),
+                style = Stroke(s / 25)
+            )
+    }
 }
 
 fun DrawScope.drawRollerB(appliedNodeOffset: Offset) {
     val s = Preferences.baseScale.toPx()
-    drawTriangle(appliedNodeOffset)
 
-    drawLine(
-        color = Preferences.supportColor2,
-        start = appliedNodeOffset + Offset(-s/2 - s/5, s * 9/10),
-        end = appliedNodeOffset + Offset(s/2, s * 9/10),
-        strokeWidth = s/15
-    )  // maybe put the hatches instead of this line
+    scale(Preferences.supportSide, Preferences.supportSide) {
+        drawTriangle(appliedNodeOffset)
+        drawLine(
+            color = Preferences.supportColor2,
+            start = appliedNodeOffset + Offset(-s / 2 - s / 5, s * 9 / 10),
+            end = appliedNodeOffset + Offset(s / 2, s * 9 / 10),
+            strokeWidth = s / 15
+        )  // maybe put the hatches instead of this line
+    }
 }
 
 fun DrawScope.drawHinge(appliedNodeOffset: Offset) {
     val s = Preferences.baseScale.toPx()
-    drawCenteredHatches(appliedNodeOffset + Offset(0f,s * 4/5))
-    drawTriangle(appliedNodeOffset)
+
+    scale(Preferences.supportSide, Preferences.supportSide) {
+        drawCenteredHatches(appliedNodeOffset + Offset(0f, s * 4 / 5))
+        drawTriangle(appliedNodeOffset)
+    }
 }
 
 fun DrawScope.drawFixed(appliedNodeOffset: Offset) {
 //    val s = Preferences.baseScale.toPx()
-    rotate(90f) {
+    rotate(90f) {scale(Preferences.supportSide, Preferences.supportSide) {
         drawCenteredHatches(appliedNodeOffset, 7)
+    }}
+}
+
+fun DrawScope.drawBeam(offset1: Offset, offset2: Offset) {
+    val s = Preferences.baseScale.toPx()
+    val edgeOffset = Offset(0f, s/25)
+
+    drawLine(
+        color = Preferences.beamColor1,
+        start = offset1,
+        end = offset2,
+        strokeWidth = s/15,
+    )
+    if (Preferences.showEdges) {
+        drawLine(
+            color = Preferences.beamColor2,
+            start = offset1 + edgeOffset,
+            end = offset2 + edgeOffset,
+            strokeWidth = s/50
+        )
+        drawLine(
+            color = Preferences.beamColor2,
+            start = offset1 - edgeOffset,
+            end = offset2 - edgeOffset,
+            strokeWidth = s/50
+        )
+    }
+}
+
+fun DrawScope.drawNode(appliedNodeOffset: Offset) {
+    val s = Preferences.baseScale.toPx()
+
+    drawCircle(
+        color = Preferences.nodeColor1,
+        center = appliedNodeOffset,
+        radius = s/30
+    )
+    if (Preferences.showEdges) {
+        drawCircle(
+            color = Preferences.nodeColor2,
+            center = appliedNodeOffset,
+            radius = s/25,
+            style = Stroke(s/50)
+        )
     }
 }
 
 fun DrawScope.drawTest(length: Float){
     val s = Preferences.baseScale.toPx()
 
-    // todo: remove this
     drawLine(Color.Blue,
         Offset(center.x-(length * s)/2, center.y),
         Offset(center.x+(length * s)/2, center.y)
+    )
+    drawLine(Color.Blue,
+        Offset(center.x, center.y-(length * s)/2),
+        Offset(center.x, center.y+(length * s)/2)
     )
 }

@@ -24,4 +24,10 @@ object Preferences {
     val supportColor3 = Color.Yellow
 
     val showEdges = false
+
+    val beamColor1 = Color.Gray
+    val beamColor2 = Color.DarkGray
+
+    val nodeColor1 = Color.Gray
+    val nodeColor2 = Color.DarkGray
 }
