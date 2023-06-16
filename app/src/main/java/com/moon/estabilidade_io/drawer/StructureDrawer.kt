@@ -3,7 +3,6 @@
 package com.moon.estabilidade_io.drawer
 
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -20,14 +19,32 @@ fun DrawScope.drawStructure(drawArgs: DrawArgs) {  // todo: pass structure data 
     drawTest(1f) // draw scale test
     // scale and rotate elements here
 
-    val offset = Offset(Preferences.baseScale.toPx()/2, 0f)
+    val s = Preferences.baseScale.toPx()
 
-    drawBeam(
-        center + offset,
-        center - offset,
-    )
-    drawNode(center + offset)
-    drawNode(center - offset)
+    val nodeA = Offset(center.x - s, center.y)
+    val nodeB = Offset(center.x, center.y)
+    val nodeC = Offset(center.x + s, center.y)
+    val nodeD = Offset(center.x - s/2, center.y - s/2)
+    val nodeE = Offset(center.x + s/2, center.y - s/2)
+
+    drawBeam(nodeA, nodeB)
+    drawBeam(nodeB, nodeC)
+
+    drawBeam(nodeA, nodeD)
+    drawBeam(nodeB, nodeD)
+    drawBeam(nodeB, nodeE)
+    drawBeam(nodeC, nodeE)
+
+    drawBeam(nodeD, nodeE)
+
+    drawNode(nodeA)
+    drawNode(nodeB)
+    drawNode(nodeC)
+    drawNode(nodeD)
+    drawNode(nodeE)
+
+    drawRoller(nodeA)
+    drawHinge(nodeC)
 }
 
 fun DrawScope.drawScaleLabel(drawArgs: DrawArgs) {

@@ -23,7 +23,7 @@ object Preferences {
     val supportColor2 = Color.DarkGray
     val supportColor3 = Color.Yellow
 
-    val showEdges = false
+    val showEdges = true
 
     val beamColor1 = Color.Gray
     val beamColor2 = Color.DarkGray
