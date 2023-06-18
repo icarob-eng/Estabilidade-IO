@@ -19,8 +19,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.moon.estabilidade_io.R
 import com.moon.estabilidade_io.models.MenuItem
 import com.moon.estabilidade_io.ui.theme.EstabilidadeIOTheme
 
@@ -38,7 +40,7 @@ fun DrawerHeader(){
                         MaterialTheme.colorScheme.secondary
                     ),
                 )*/
-                color = MaterialTheme.colorScheme.primary
+                color = colorResource(id = R.color.primary)
             )
     ){
         Text(text = "Opções", color = Color.White, modifier =  Modifier.padding(start = 20.dp))
