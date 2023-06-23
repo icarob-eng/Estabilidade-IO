@@ -14,6 +14,7 @@ import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.unit.dp
+import com.moon.kstability.PointLoad
 
 
 fun DrawScope.drawScaleLabel(drawArgs: DrawArgs) {
@@ -36,9 +37,10 @@ fun DrawScope.drawScaleLabel(drawArgs: DrawArgs) {
     )
 }
 
-private fun DrawScope.drawTriangle(topPoint: Offset) {
-    val s = Preferences.baseScale.toPx() * Preferences.supportSide
-
+private fun DrawScope.drawTriangle(
+    topPoint: Offset,
+    s: Float = Preferences.baseScale.toPx() * Preferences.supportSide
+) {
     val path = Path()
     path.moveTo(topPoint.x, topPoint.y)
     path.lineTo(topPoint.x + s / 2, topPoint.y + s * 4/5)
@@ -56,8 +58,11 @@ private fun DrawScope.drawTriangle(topPoint: Offset) {
         )
 }
 
-private fun DrawScope.drawCenteredHatches(middlePoint: Offset, nHatches: Int = 5) {
-    val s = Preferences.baseScale.toPx() * Preferences.supportSide
+private fun DrawScope.drawCenteredHatches(
+    middlePoint: Offset,
+    nHatches: Int = 5,
+    s: Float = Preferences.baseScale.toPx() * Preferences.supportSide
+) {
 
     val endOffset = middlePoint + Offset(s/2, 0f)
     drawLine(
@@ -78,8 +83,10 @@ private fun DrawScope.drawCenteredHatches(middlePoint: Offset, nHatches: Int = 5
     }
 }
 
-fun DrawScope.drawRoller(appliedNodeOffset: Offset) {
-    val s = Preferences.baseScale.toPx() * Preferences.supportSide
+fun DrawScope.drawRoller(
+    appliedNodeOffset: Offset,
+    s: Float = Preferences.baseScale.toPx() * Preferences.supportSide
+) {
 
     drawCenteredHatches(appliedNodeOffset + Offset(0f, s * 4 / 5))
     drawCircle(
@@ -96,9 +103,10 @@ fun DrawScope.drawRoller(appliedNodeOffset: Offset) {
         )
 }
 
-fun DrawScope.drawRollerB(appliedNodeOffset: Offset) {
-    val s = Preferences.baseScale.toPx() * Preferences.supportSide
-
+fun DrawScope.drawRollerB(
+    appliedNodeOffset: Offset,
+    s: Float = Preferences.baseScale.toPx() * Preferences.supportSide
+) {
     drawTriangle(appliedNodeOffset)
     drawLine(
         color = Preferences.supportColor2,
@@ -108,23 +116,28 @@ fun DrawScope.drawRollerB(appliedNodeOffset: Offset) {
     )  // maybe put the hatches instead of this line
 }
 
-fun DrawScope.drawHinge(appliedNodeOffset: Offset) {
-    val s = Preferences.baseScale.toPx() * Preferences.supportSide
-
+fun DrawScope.drawHinge(
+    appliedNodeOffset: Offset,
+    s: Float = Preferences.baseScale.toPx() * Preferences.supportSide
+) {
     drawCenteredHatches(appliedNodeOffset + Offset(0f, s * 4 / 5))
     drawTriangle(appliedNodeOffset)
 }
 
-fun DrawScope.drawFixed(appliedNodeOffset: Offset) {
-//    val s = Preferences.baseScale.toPx()
+fun DrawScope.drawFixed(
+    appliedNodeOffset: Offset,
+    s: Float = Preferences.baseScale.toPx() * Preferences.supportSide
+) {
+    // todo: test this drawing
     rotate(90f) {scale(Preferences.supportSide, Preferences.supportSide) {
         drawCenteredHatches(appliedNodeOffset, 7)
     }}
 }
 
-fun DrawScope.drawBeam(offset1: Offset, offset2: Offset) {
-    val s = Preferences.baseScale.toPx()
-
+fun DrawScope.drawBeam(
+    offset1: Offset, offset2: Offset,
+    s: Float = Preferences.baseScale.toPx() * Preferences.supportSide
+) {
     drawLine(
         color = Preferences.beamColor1,
         start = offset1,
@@ -152,9 +165,10 @@ fun DrawScope.drawBeam(offset1: Offset, offset2: Offset) {
     }
 }
 
-fun DrawScope.drawNode(appliedNodeOffset: Offset) {
-    val s = Preferences.baseScale.toPx()
-
+fun DrawScope.drawNode(
+    appliedNodeOffset: Offset,
+    s: Float = Preferences.baseScale.toPx() * Preferences.supportSide
+) {
     drawCircle(
         color = Preferences.nodeColor1,
         center = appliedNodeOffset,
@@ -166,6 +180,14 @@ fun DrawScope.drawNode(appliedNodeOffset: Offset) {
         radius = s/25,
         style = Stroke(s/50)
     )
+}
+
+fun DrawScope.drawLoad(
+    load: PointLoad,
+    colorIsReaction: Boolean = false,
+    s: Float = Preferences.baseScale.toPx() * Preferences.supportSide
+) {
+//    drawLine()
 }
 
 /**
@@ -180,7 +202,11 @@ fun DrawScope.drawNode(appliedNodeOffset: Offset) {
  * @param yScale Float that the termines the relation between the plot y-axis scale and the Canvas
  * pixel count. yScale = 1 means that each unit in the y-axis will represent 1 pixel.
  */
-fun DrawScope.chart(axes: Axes, color: Color, origin: Offset, xLength: Offset, yScale: Float) {
+fun DrawScope.chart(
+    axes: Axes, color: Color,
+    origin: Offset, xLength: Offset,
+    yScale: Float
+) {
     val iHat = (xLength - origin)
     val jHat = Offset(-iHat.y, iHat.x)/iHat.getDistance() * yScale  // todo: test if this is accepted
 
