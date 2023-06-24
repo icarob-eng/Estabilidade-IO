@@ -21,6 +21,7 @@ import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
+import com.moon.kstability.Structure
 
 
 data class DrawArgs @OptIn(ExperimentalTextApi::class) constructor(
@@ -32,7 +33,7 @@ data class DrawArgs @OptIn(ExperimentalTextApi::class) constructor(
 
 @OptIn(ExperimentalTextApi::class)
 @Composable
-fun MainCanvas(modifier: Modifier) {  // todo: pass structure data as argument
+fun MainCanvas(modifier: Modifier, structure: Structure, diagramType: DiagramType) {
     // gesture handling:
     var scaleValue by remember { mutableStateOf(1f) }
 //    var rotationValue by remember { mutableStateOf(0f) }
@@ -60,7 +61,7 @@ fun MainCanvas(modifier: Modifier) {  // todo: pass structure data as argument
         val dA= DrawArgs(scaleValue, offsetValue, 0f, textMeasurer)
 
         translate (offsetValue.x, offsetValue.y) { scale(scaleValue, scaleValue) {
-            drawStructure(dA)
+            drawStructure(dA, structure, diagramType)
         }}
         drawScaleLabel(dA)  // remains in the same place
 
@@ -70,7 +71,12 @@ fun MainCanvas(modifier: Modifier) {  // todo: pass structure data as argument
 @Preview
 @Composable
 fun MainCanvasPreview() {
-    MainCanvas(modifier = Modifier
-        .fillMaxSize()
-        .background(Color.LightGray))
+    MainCanvas(
+        Modifier
+            .fillMaxSize()
+            .background(Color.LightGray),
+        // todo: get structure sample
+        Structure("A"),
+        DiagramType.SHEAR
+    )
 }

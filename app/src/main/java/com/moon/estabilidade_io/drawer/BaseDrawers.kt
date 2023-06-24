@@ -16,6 +16,10 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.unit.dp
 import com.moon.kstability.PointLoad
 
+import com.moon.kstability.Axes
+import com.moon.kstability.Axis
+import com.moon.kstability.Beam
+import com.moon.kstability.Vector
 
 fun DrawScope.drawScaleLabel(drawArgs: DrawArgs) {
     val s = Preferences.baseScale.toPx()
@@ -183,7 +187,8 @@ fun DrawScope.drawNode(
 }
 
 fun DrawScope.drawLoad(
-    load: PointLoad,
+    appliedNodeOffset: Offset,
+    loadVector: Offset,
     colorIsReaction: Boolean = false,
     s: Float = Preferences.baseScale.toPx() * Preferences.supportSide
 ) {

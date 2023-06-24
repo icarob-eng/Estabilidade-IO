@@ -1,17 +1,29 @@
 package com.moon.estabilidade_io.drawer
 
-import android.util.Log
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import com.moon.kstability.Node
+import com.moon.kstability.Structure
+import com.moon.kstability.Vector
 
-// todo: use kstability typealias
-typealias Axis = List<Float>
-typealias Axes = Pair<Axis, Axis>
+enum class DiagramType {
+    /**
+     * Tells `MainCanvas` what to draw along with the given structure.
+     * @property NONE Draw only the structure
+     * @property REACTIONS Draw only the structure and reaction forces
+     * @property NORMAL Draw the structure, reaction forces and Normal Stress Diagram
+     * @property SHEAR Draw the structure, reaction forces and Shear Stress Diagram
+     * @property MOMENT Draw the structure, reaction forces and Bending Moment Diagram
+     */
+    NONE, REACTIONS, NORMAL, SHEAR, MOMENT
+}
 
-fun DrawScope.drawStructure(drawArgs: DrawArgs) {  // todo: pass structure data as argument
+fun DrawScope.drawStructure(drawArgs: DrawArgs, structure: Structure, diagramType: DiagramType) {
     drawTest(1f) // draw scale test
     // scale and rotate elements here
+
+    // todo: draw given structure
 
     val s = Preferences.baseScale.toPx()
 
@@ -73,4 +85,7 @@ fun DrawScope.drawStructure(drawArgs: DrawArgs) {  // todo: pass structure data 
     )
 }
 
-fun f(x: Float) = 2 * x
+fun f(x: Float) = 2 * x  // sample function, remove after use
+
+fun Node.toOffset() = Offset(pos.x, pos.y)
+fun Vector.toOffset() = Offset(x, y)

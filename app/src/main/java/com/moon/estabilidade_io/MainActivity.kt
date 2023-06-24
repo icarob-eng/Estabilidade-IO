@@ -9,8 +9,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.moon.estabilidade_io.drawer.DiagramType
 import com.moon.estabilidade_io.drawer.MainCanvas
 import com.moon.estabilidade_io.ui.theme.EstabilidadeIOTheme
+import com.moon.kstability.Structure
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,7 +24,15 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MainCanvas(Modifier.fillMaxSize().background(Color.LightGray))
+                    MainCanvas(
+                        Modifier
+                            .fillMaxSize()
+                            .background(Color.LightGray),
+                        // generate structure and pass it here
+                        Structure("A"),
+                        // select the desired DiagramType @see StructureDrawer.DiagramType
+                        DiagramType.SHEAR
+                    )
                 }
             }
         }
