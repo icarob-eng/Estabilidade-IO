@@ -46,6 +46,8 @@ fun DrawScope.drawStructure(drawArgs: DrawArgs, structure: Structure, diagramTyp
     val xLenght = 4
 
     drawBeam(a, b)
+    drawNode(a)
+    drawNode(b)
 
     // structure for generating x and y values
     val x = mutableListOf(0f)

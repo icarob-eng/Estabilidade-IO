@@ -24,6 +24,8 @@ object Preferences {
     val supportColor3 = Color.Gray
 
     val showEdges = true
+    val beamWidth = 1/20f
+    val edgesWidth = beamWidth/4
 
     val beamColor1 = Color.Gray
     val beamColor2 = Color.DarkGray

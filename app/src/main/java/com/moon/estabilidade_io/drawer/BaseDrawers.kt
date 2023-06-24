@@ -42,7 +42,7 @@ fun DrawScope.drawScaleLabel(drawArgs: DrawArgs) {
 private fun DrawScope.drawTriangle(
     topPoint: Offset,
     s: Float = Preferences.baseScale.toPx() * Preferences.supportSide,
-    edgjable: Boolean = true,
+    showEdges: Boolean = Preferences.showEdges,
     color: Color = Preferences.supportColor1
 ) {
     val path = Path()
@@ -54,11 +54,11 @@ private fun DrawScope.drawTriangle(
         path = path,
         color = color,
     )
-    if (Preferences.showEdges && edgjable)
+    if (showEdges)
         drawPath(
             path = path,
             color = Preferences.supportColor3,
-            style = Stroke(s / 20)
+            style = Stroke(s * Preferences.edgesWidth)
         )
 }
 
@@ -103,7 +103,7 @@ fun DrawScope.drawRoller(
             color = Preferences.supportColor3,
             radius = s / 2 * 4 / 5,
             center = appliedNodeOffset + Offset(0f, s / 2 * 4 / 5),
-            style = Stroke(s / 25)
+            style = Stroke(s * Preferences.edgesWidth)
         )
 }
 
@@ -141,22 +141,23 @@ fun DrawScope.drawFixed(
 
 fun DrawScope.drawBeam(
     offset1: Offset, offset2: Offset,
-    s: Float = Preferences.baseScale.toPx() * Preferences.supportSide
+    s: Float = Preferences.baseScale.toPx()
 ) {
     drawLine(
         color = Preferences.beamColor1,
         start = offset1,
         end = offset2,
-        strokeWidth = s/15,
+        strokeWidth = s * Preferences.beamWidth,
     )
     if (Preferences.showEdges) {
-        val beam = (offset2 - offset1)/(offset2 - offset1).getDistance() * s/25f
+        val beam = (offset2 - offset1)/(offset2 - offset1).getDistance() *
+                s * (Preferences.beamWidth/2 - Preferences.edgesWidth/4)
         translate(- beam.y, beam.x) {
             drawLine(
                 color = Preferences.beamColor2,
                 start = offset1,
                 end = offset2,
-                strokeWidth = s / 50,
+                strokeWidth = s * Preferences.edgesWidth
             )
         }
         translate(+ beam.y,- beam.x) {
@@ -164,7 +165,7 @@ fun DrawScope.drawBeam(
                 color = Preferences.beamColor2,
                 start = offset1,
                 end = offset2,
-                strokeWidth = s / 50,
+                strokeWidth = s * Preferences.edgesWidth
             )
         }
     }
@@ -172,18 +173,18 @@ fun DrawScope.drawBeam(
 
 fun DrawScope.drawNode(
     appliedNodeOffset: Offset,
-    s: Float = Preferences.baseScale.toPx() * Preferences.supportSide
+    s: Float = Preferences.baseScale.toPx()
 ) {
     drawCircle(
         color = Preferences.nodeColor1,
         center = appliedNodeOffset,
-        radius = s/30
+        radius = s * Preferences.beamWidth / 2
     )
     drawCircle(
         color = Preferences.nodeColor2,
         center = appliedNodeOffset,
-        radius = s/25,
-        style = Stroke(s/50)
+        radius = s * (Preferences.beamWidth/2 - Preferences.edgesWidth/4),
+        style = Stroke(s * Preferences.edgesWidth)
     )
 }
 
@@ -191,7 +192,7 @@ fun DrawScope.drawLoad(
     appliedNodeOffset: Offset,
     loadVector: Offset,
     isReaction: Boolean = false,
-    s: Float = Preferences.baseScale.toPx() * Preferences.supportSide
+    s: Float = Preferences.baseScale.toPx()
 ) {
     val color = if (isReaction) Preferences.reactionColor else Preferences.loadColor
 
@@ -209,7 +210,9 @@ fun DrawScope.drawLoad(
     }}
 }
 
-//fun DrawScope.
+fun DrawScope.drawMoment() {
+
+}
 
 /**
  * Plot the chart of the given `Axes` on the specified locations. The plot direction, origin and
@@ -226,7 +229,7 @@ fun DrawScope.drawLoad(
 fun DrawScope.chart(
     axes: Axes, color: Color,
     origin: Offset, xEnd: Offset,
-    yScale: Float  // todo: set proper scale
+    yScale: Float
 ) {
     val iHat = (xEnd - origin)
     val jHat = iHat.toVector().orthogonal().normalize().toOffset() * yScale / 2f
