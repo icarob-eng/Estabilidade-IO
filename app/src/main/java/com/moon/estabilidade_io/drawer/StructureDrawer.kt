@@ -37,17 +37,18 @@ fun DrawScope.drawStructure(drawArgs: DrawArgs, structure: Structure, diagramTyp
     4. Charts / Loads
      */
 
-//    val a = center - Offset(s/2, s/2)
-//    val b = center
-    val a = center - Offset(0f, s/2)
-    val b = center + Offset(0f, s/2)
+    val a = center - Offset(s/2, s/2)
+    val b = center
+//    val a = center - Offset(0f, s/2)
+//    val b = center + Offset(0f, s/2)
 
     val points = 10
     val xLenght = 4
 
     drawBeam(a, b)
-    drawNode(a)
-    drawNode(b)
+    drawMoment(a, true, isReaction = true)
+    drawDistributedLoad(a, b, Offset(30f, 40f))
+    drawPointLoad(center + Offset(s, 0f), Offset(60f,80f), true)
 
     // structure for generating x and y values
     val x = mutableListOf(0f)

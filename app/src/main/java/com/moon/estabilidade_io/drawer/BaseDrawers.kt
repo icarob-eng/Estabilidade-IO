@@ -3,6 +3,7 @@
 package com.moon.estabilidade_io.drawer
 
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -150,9 +151,9 @@ fun DrawScope.drawBeam(
         strokeWidth = s * Preferences.beamWidth,
     )
     if (Preferences.showEdges) {
-        val beam = (offset2 - offset1)/(offset2 - offset1).getDistance() *
+        val edgeOffset = (offset2 - offset1)/(offset2 - offset1).getDistance() *
                 s * (Preferences.beamWidth/2 - Preferences.edgesWidth/4)
-        translate(- beam.y, beam.x) {
+        translate(- edgeOffset.y, edgeOffset.x) {
             drawLine(
                 color = Preferences.beamColor2,
                 start = offset1,
@@ -160,7 +161,7 @@ fun DrawScope.drawBeam(
                 strokeWidth = s * Preferences.edgesWidth
             )
         }
-        translate(+ beam.y,- beam.x) {
+        translate(+ edgeOffset.y,- edgeOffset.x) {
             drawLine(
                 color = Preferences.beamColor2,
                 start = offset1,
@@ -188,7 +189,7 @@ fun DrawScope.drawNode(
     )
 }
 
-fun DrawScope.drawLoad(
+fun DrawScope.drawPointLoad(
     appliedNodeOffset: Offset,
     loadVector: Offset,
     isReaction: Boolean = false,
@@ -196,7 +197,8 @@ fun DrawScope.drawLoad(
 ) {
     val color = if (isReaction) Preferences.reactionColor else Preferences.loadColor
 
-    val argument = atan((loadVector.y / loadVector.x).toDouble()).toFloat()
+    val argument = if (loadVector.x != 0f) -atan((loadVector.y / loadVector.x).toDouble()).toFloat()
+    else 0f
 
     scale(loadVector.getDistance() / s, appliedNodeOffset) {
         rotateRad(argument, appliedNodeOffset) {
@@ -207,10 +209,53 @@ fun DrawScope.drawLoad(
             strokeWidth = s / 10
         )
         drawTriangle(appliedNodeOffset, s * 4 / 10f, false, color)
-    }}
+        }}
 }
 
-fun DrawScope.drawMoment() {
+fun DrawScope.drawDistributedLoad(
+    offset1: Offset, offset2: Offset,
+    loadVector: Offset,
+    s: Float= Preferences.baseScale.toPx()
+) {
+    val path = Path()
+    path.moveTo(offset1.x, offset1.y)
+    path.lineTo((offset1 + loadVector).x, (offset1 + loadVector).y)
+    path.lineTo((offset2 + loadVector).x, (offset2 + loadVector).y)
+    path.lineTo(offset2.x, offset2.y)
+    drawPath(path, Preferences.loadColor, style = Stroke(s/128))
+
+    val vectorNumber = 3
+    val iHat = (offset2 - offset1)/(vectorNumber + 1f)
+
+    for (n in 0 until vectorNumber) {
+        drawPointLoad(offset1 + iHat * (n + 1f), loadVector, false, s)
+    }
+}
+
+fun DrawScope.drawMoment(
+    appliedNodeOffset: Offset,
+    clockWise: Boolean, isReaction: Boolean = false,
+    s: Float = Preferences.baseScale.toPx() * Preferences.supportSide
+) {
+    val color = if (isReaction) Preferences.reactionColor else Preferences.loadColor
+
+    scale( if (clockWise) 1f else -1f, 1f, appliedNodeOffset) {
+        drawArc(
+            color = color,
+            startAngle = -90f,
+            sweepAngle = 210f,
+            useCenter = false,
+            topLeft = appliedNodeOffset - Offset(s / 2, s / 2) / 2f,
+            size = Size(s, s) / 2f,
+            style = Stroke(s / 20)
+        )
+        rotate(-90f, appliedNodeOffset) {
+            drawTriangle(
+                appliedNodeOffset + Offset(s / 4, - s / 10),
+                s * 4 / 20f, false, color
+            )
+        }
+    }
 
 }
 
