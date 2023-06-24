@@ -3,9 +3,11 @@ package com.moon.estabilidade_io.drawer
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import com.moon.kstability.Axis
 import com.moon.kstability.Node
 import com.moon.kstability.Structure
 import com.moon.kstability.Vector
+import kotlin.math.absoluteValue
 
 enum class DiagramType {
     /**
@@ -35,43 +37,25 @@ fun DrawScope.drawStructure(drawArgs: DrawArgs, structure: Structure, diagramTyp
     4. Charts / Loads
      */
 
-    val nodeA = Offset(center.x - s, center.y)
-    val nodeB = Offset(center.x, center.y)
-    val nodeC = Offset(center.x + s, center.y)
-    val nodeD = Offset(center.x - s/2, center.y - s/2)
-    val nodeE = Offset(center.x + s/2, center.y - s/2)
+//    val a = center - Offset(s/2, s/2)
+//    val b = center
+    val a = center - Offset(0f, s/2)
+    val b = center + Offset(0f, s/2)
 
-    drawRoller(nodeA)
-    drawHinge(nodeC)
+    val points = 10
+    val xLenght = 4
 
-    drawBeam(nodeA, nodeB)
-    drawBeam(nodeB, nodeC)
+    drawBeam(a, b)
 
-    drawBeam(nodeA, nodeD)
-    drawBeam(nodeB, nodeD)
-    drawBeam(nodeB, nodeE)
-    drawBeam(nodeC, nodeE)
-
-    drawBeam(nodeD, nodeE)
-
-
-    drawNode(nodeA)
-    drawNode(nodeB)
-    drawNode(nodeC)
-    drawNode(nodeD)
-    drawNode(nodeE)
-
-    var x = mutableListOf(0f)
-    var y = mutableListOf(f(0f))
+    // structure for generating x and y values
+    val x = mutableListOf(0f)
+    val y = mutableListOf(f(0f))
     var i = 0f
-    while (i <= 1000){
+    while (i < points * xLenght){
         i += 1f
-        x.add(i)
-        y.add(f(i))
+        x.add(i/points)
+        y.add(f(i/points))
     }
-
-    x = x.map{ it }.toMutableList()
-    y = y.map{ it }.toMutableList()
 
     val axes = Pair(x, y)
     // Size(1080.0, 2132.0)
@@ -79,13 +63,22 @@ fun DrawScope.drawStructure(drawArgs: DrawArgs, structure: Structure, diagramTyp
     chart(
         axes = axes,
         color = Color.Magenta,
-        origin = center,
-        xLength = center + Offset(3 *s, 0f),
-        yScale = s
+        origin = a,
+        xEnd = b,
+        yScale = getYScale(s, axes.second)
     )
 }
 
-fun f(x: Float) = 2 * x  // sample function, remove after use
+fun f(x: Float) = (x - 1) * (x - 1) - 1  // sample function, remove after use
+
+/**
+ * Return scale that make the axis be limited between -baseScale and baseScale.
+ */
+fun getYScale(baseScale: Float, axis: Axis): Float {
+    val absMax = if (axis.max() >= axis.min().absoluteValue) axis.max() else axis.min().absoluteValue
+    return baseScale / if (absMax != 0f) absMax else 1f
+}
 
 fun Node.toOffset() = Offset(pos.x, pos.y)
 fun Vector.toOffset() = Offset(x, y)
+fun Offset.toVector() = Vector(x, y)

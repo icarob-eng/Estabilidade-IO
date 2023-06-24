@@ -8,18 +8,16 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.drawscope.rotateRad
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.unit.dp
-import com.moon.kstability.PointLoad
 
 import com.moon.kstability.Axes
-import com.moon.kstability.Axis
-import com.moon.kstability.Beam
-import com.moon.kstability.Vector
+import kotlin.math.atan
 
 fun DrawScope.drawScaleLabel(drawArgs: DrawArgs) {
     val s = Preferences.baseScale.toPx()
@@ -43,7 +41,9 @@ fun DrawScope.drawScaleLabel(drawArgs: DrawArgs) {
 
 private fun DrawScope.drawTriangle(
     topPoint: Offset,
-    s: Float = Preferences.baseScale.toPx() * Preferences.supportSide
+    s: Float = Preferences.baseScale.toPx() * Preferences.supportSide,
+    edgjable: Boolean = true,
+    color: Color = Preferences.supportColor1
 ) {
     val path = Path()
     path.moveTo(topPoint.x, topPoint.y)
@@ -52,9 +52,9 @@ private fun DrawScope.drawTriangle(
     path.close()
     drawPath(
         path = path,
-        color = Preferences.supportColor1,
+        color = color,
     )
-    if (Preferences.showEdges)
+    if (Preferences.showEdges && edgjable)
         drawPath(
             path = path,
             color = Preferences.supportColor3,
@@ -133,7 +133,8 @@ fun DrawScope.drawFixed(
     s: Float = Preferences.baseScale.toPx() * Preferences.supportSide
 ) {
     // todo: test this drawing
-    rotate(90f) {scale(Preferences.supportSide, Preferences.supportSide) {
+    rotate(90f, appliedNodeOffset) {
+        scale(Preferences.supportSide, Preferences.supportSide, appliedNodeOffset) {
         drawCenteredHatches(appliedNodeOffset, 7)
     }}
 }
@@ -189,38 +190,53 @@ fun DrawScope.drawNode(
 fun DrawScope.drawLoad(
     appliedNodeOffset: Offset,
     loadVector: Offset,
-    colorIsReaction: Boolean = false,
+    isReaction: Boolean = false,
     s: Float = Preferences.baseScale.toPx() * Preferences.supportSide
 ) {
-//    drawLine()
+    val color = if (isReaction) Preferences.reactionColor else Preferences.loadColor
+
+    val argument = atan((loadVector.y / loadVector.x).toDouble()).toFloat()
+
+    scale(loadVector.getDistance() / s, appliedNodeOffset) {
+        rotateRad(argument, appliedNodeOffset) {
+        drawLine(
+            color,
+            appliedNodeOffset + Offset(0f, s / 10),
+            appliedNodeOffset + Offset(0f, s),
+            strokeWidth = s / 10
+        )
+        drawTriangle(appliedNodeOffset, s * 4 / 10f, false, color)
+    }}
 }
+
+//fun DrawScope.
 
 /**
  * Plot the chart of the given `Axes` on the specified locations. The plot direction, origin and
  * vertical scale is specified by the arguments.
  *
  * @param axes Axes to be plotted. The x-axis (in length units) will be distributed along the origin
- * to xLength vector, while the y-axis will be plotted perpendicularly to said vector.
+ * to xEnd vector, while the y-axis will be plotted perpendicularly to said vector.
  * @param color
  * @param origin Offset where the plot will begin, the "0" point of the plot.
- * @param xLength Offset representing where the x-axis will end.
+ * @param xEnd Offset representing where the x-axis will end.
  * @param yScale Float that the termines the relation between the plot y-axis scale and the Canvas
  * pixel count. yScale = 1 means that each unit in the y-axis will represent 1 pixel.
  */
 fun DrawScope.chart(
     axes: Axes, color: Color,
-    origin: Offset, xLength: Offset,
-    yScale: Float
+    origin: Offset, xEnd: Offset,
+    yScale: Float  // todo: set proper scale
 ) {
-    val iHat = (xLength - origin)
-    val jHat = Offset(-iHat.y, iHat.x)/iHat.getDistance() * yScale  // todo: test if this is accepted
+    val iHat = (xEnd - origin)
+    val jHat = iHat.toVector().orthogonal().normalize().toOffset() * yScale / 2f
 
     val path = Path()
     path.moveTo(origin.x, origin.y)
     for (i in 1 until axes.first.size) {
-        val k = axes.first[i] / axes.first.last()
-        val xVec = iHat * k
-        val p = xVec + jHat * axes.second[i]
+        val n = axes.first[i] / axes.first.last() // normalization factor
+        val xComp = iHat * n
+        val p = origin + xComp + jHat * axes.second[i]
         path.lineTo(p.x, p.y)
     }
     drawPath(

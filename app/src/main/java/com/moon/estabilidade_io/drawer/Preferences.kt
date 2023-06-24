@@ -19,9 +19,9 @@ object Preferences {
 
     // scale of the hinge (default size is 1 m square)
     val supportSide = 0.25f
-    val supportColor1 = Color.Red
+    val supportColor1 = Color.LightGray
     val supportColor2 = Color.DarkGray
-    val supportColor3 = Color.Yellow
+    val supportColor3 = Color.Gray
 
     val showEdges = true
 
@@ -32,4 +32,7 @@ object Preferences {
     val nodeColor2 = Color.DarkGray
 
     val chartWidth = 1f
+
+    val loadColor = Color.Blue
+    val reactionColor = Color.Red
 }
