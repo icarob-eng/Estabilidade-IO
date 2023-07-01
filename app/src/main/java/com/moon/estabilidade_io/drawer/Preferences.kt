@@ -17,15 +17,17 @@ object Preferences {
     val textSize = 20.sp
     val textLineSize = 30.sp
 
+    const val useRollerB = false
+
     // scale of the hinge (default size is 1 m square)
-    val supportSide = 0.25f
+    const val supportSide = 0.25f
     val supportColor1 = Color.LightGray
     val supportColor2 = Color.DarkGray
     val supportColor3 = Color.Gray
 
-    val showEdges = true
-    val beamWidth = 1/20f
-    val edgesWidth = beamWidth/4
+    const val showEdges = true
+    const val beamWidth = 1/20f
+    const val edgesWidth = beamWidth/4
 
     val beamColor1 = Color.Gray
     val beamColor2 = Color.DarkGray
@@ -33,7 +35,7 @@ object Preferences {
     val nodeColor1 = Color.Gray
     val nodeColor2 = Color.DarkGray
 
-    val chartWidth = 1f
+    const val chartWidth = 1f
 
     val loadColor = Color.Blue
     val reactionColor = Color.Red

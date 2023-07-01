@@ -1,16 +1,14 @@
 package com.moon.estabilidade_io.drawer
 
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Stroke
 import com.moon.kstability.Axis
+import com.moon.kstability.Diagrams
 import com.moon.kstability.Node
 import com.moon.kstability.Structure
+import com.moon.kstability.Support
 import com.moon.kstability.Vector
 import kotlin.math.absoluteValue
-import kotlin.math.sqrt
 
 enum class DiagramType {
     /**
@@ -25,7 +23,13 @@ enum class DiagramType {
     NONE, LOADS, REACTIONS, NORMAL, SHEAR, MOMENT
 }
 
-fun DrawScope.drawStructure(drawArgs: DrawArgs, structure: Structure, diagramType: DiagramType) {
+fun DrawScope.drawStructure(
+    drawArgs: DrawArgs,
+    structure: Structure,
+    diagramType: DiagramType,
+    nodeLabels: Boolean = false,
+    loadLabels: Boolean = true
+) {
     drawTest(1f) // draw scale test
     val s = Preferences.baseScale.toPx()
     /*
@@ -33,21 +37,64 @@ fun DrawScope.drawStructure(drawArgs: DrawArgs, structure: Structure, diagramTyp
     1. Supports
     2. Beams
     3. Nodes
-    4. Charts / Loads
+    4. Loads
+    5. Charts
      */
+    structure.getSupports().map {
+        when (it.gender) {
+            // todo: rotate support
+            Support.Gender.FIRST -> if (Preferences.useRollerB) drawRollerB(it.node.toOffset())
+            else drawRoller(it.node.toOffset())
 
-    // todo: draw given structure
+            Support.Gender.SECOND -> drawHinge(it.node.toOffset())
+            Support.Gender.THIRD -> drawFixed(it.node.toOffset())
+        }
+    }
+    // todo: check if order matters
+    structure.getBeams().map {
+        drawBeam(it.node1.toOffset(), it.node2.toOffset())
+    }
+    structure.nodes.map {
+        drawNode(it.toOffset())
+        if (nodeLabels) drawLabel(it.toOffset(), it.name, drawArgs, Directions.T)
+    }
 
-    val a = center - Offset(0f, s/2)
-    val b = center + Offset(0f, s/2)
+    if (diagramType == DiagramType.NONE) return
 
-    drawBeam(a, b)
-    drawDistributedLoad(a, b, Vector(-30f, -40f))
-    drawPointLoad(center + Offset(s, 0f), Vector(60f,80f), true)
-    drawMoment(a, true, isReaction = true)
+    // todo: scaling
+    structure.getPointLoads().map {
+        drawPointLoad(it.node.toOffset(), it.vector)
+        if (loadLabels)
+            drawLabel(it.node.toOffset(), it.vector.length().u("kN"), drawArgs, Directions.T)
+    }
+    // todo: check if order matters
+    structure.getDistributedLoads().map {
+        drawDistributedLoad(it.node1.toOffset(), it.node2.toOffset(), it.vector)
+        if (loadLabels)
+            drawLabel(
+                (it.node1.toOffset() + it.node2.toOffset())/2f,
+                it.vector.length().u("kN/M"),
+                drawArgs,
+                it.vector.normalize().toOffset()
+            )
+    }
+    structure.nodes.map {
+        if (it.momentum != 0f) {
+            drawMoment(it.toOffset(), it.momentum < 0f)
+            if (loadLabels)
+                drawLabel(it.toOffset(), it.momentum.u("kNm"), drawArgs, Directions.T)
+        }
+    }
 
-    drawLabel((a+b)/2f, 50.u("kN/m"), drawArgs, Directions.R)
-    drawLabel(a, 50.u("kNm"), drawArgs, Directions.T)
+    if (diagramType == DiagramType.LOADS) return
+    // todo: reaction forces
+    val diagramFun = when (diagramType) {
+        DiagramType.NORMAL -> Diagrams::generateNormalFunction
+        DiagramType.SHEAR -> Diagrams::generateShearFunction
+        DiagramType.MOMENT -> Diagrams::generateMomentFunction
+        else -> return
+    }
+    // todo: plot diagrams
 }
 
 /**
