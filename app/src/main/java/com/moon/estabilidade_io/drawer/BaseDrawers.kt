@@ -2,6 +2,7 @@
 
 package com.moon.estabilidade_io.drawer
 
+import android.util.Log
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -18,7 +19,10 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.unit.dp
 
 import com.moon.kstability.Axes
+import com.moon.kstability.Vector
+import kotlin.math.absoluteValue
 import kotlin.math.atan
+import kotlin.math.sign
 
 fun DrawScope.drawScaleLabel(drawArgs: DrawArgs) {
     val s = Preferences.baseScale.toPx()
@@ -191,17 +195,22 @@ fun DrawScope.drawNode(
 
 fun DrawScope.drawPointLoad(
     appliedNodeOffset: Offset,
-    loadVector: Offset,
+    loadVector: Vector,
     isReaction: Boolean = false,
     s: Float = Preferences.baseScale.toPx()
 ) {
     val color = if (isReaction) Preferences.reactionColor else Preferences.loadColor
 
-    val argument = if (loadVector.x != 0f) -atan((loadVector.y / loadVector.x).toDouble()).toFloat()
-    else 0f
+    val pi = Math.PI.toFloat()
 
-    scale(loadVector.getDistance() / s, appliedNodeOffset) {
-        rotateRad(argument, appliedNodeOffset) {
+    var argument = atan(loadVector.y/loadVector.x) + pi
+    if (loadVector.x.sign > 0)
+        argument += pi
+    Log.d("Argument", "${loadVector/s * 2}, Argument: $argument")
+
+    scale((loadVector.length() / s).absoluteValue, appliedNodeOffset) {
+        rotateRad(- argument + pi/2, appliedNodeOffset) {
+            // transforms the argument to the expected direction
         drawLine(
             color,
             appliedNodeOffset + Offset(0f, s / 10),
@@ -214,13 +223,13 @@ fun DrawScope.drawPointLoad(
 
 fun DrawScope.drawDistributedLoad(
     offset1: Offset, offset2: Offset,
-    loadVector: Offset,
+    loadVector: Vector,
     s: Float= Preferences.baseScale.toPx()
 ) {
     val path = Path()
     path.moveTo(offset1.x, offset1.y)
-    path.lineTo((offset1 + loadVector).x, (offset1 + loadVector).y)
-    path.lineTo((offset2 + loadVector).x, (offset2 + loadVector).y)
+    path.lineTo((offset1 + loadVector.toOffset()).x, (offset1 + loadVector.toOffset()).y)
+    path.lineTo((offset2 + loadVector.toOffset()).x, (offset2 + loadVector.toOffset()).y)
     path.lineTo(offset2.x, offset2.y)
     drawPath(path, Preferences.loadColor, style = Stroke(s/128))
 
