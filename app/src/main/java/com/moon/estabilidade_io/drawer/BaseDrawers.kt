@@ -2,7 +2,6 @@
 
 package com.moon.estabilidade_io.drawer
 
-import android.util.Log
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -16,6 +15,7 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 import com.moon.kstability.Axes
@@ -38,7 +38,7 @@ fun DrawScope.drawScaleLabel(drawArgs: DrawArgs) {
 
     drawText(
         drawArgs.textMeasurer,
-        "1m",
+        "1 m",
         baseOffset + Offset(0f, - Preferences.textLineSize.toPx()),
         TextStyle(color = Color.Black, fontSize = Preferences.textSize)
     )
@@ -137,7 +137,6 @@ fun DrawScope.drawFixed(
     appliedNodeOffset: Offset,
     s: Float = Preferences.baseScale.toPx() * Preferences.supportSide
 ) {
-    // todo: test this drawing
     rotate(90f, appliedNodeOffset) {
         scale(Preferences.supportSide, Preferences.supportSide, appliedNodeOffset) {
         drawCenteredHatches(appliedNodeOffset, 7)
@@ -206,7 +205,6 @@ fun DrawScope.drawPointLoad(
     var argument = atan(loadVector.y/loadVector.x)
     if (loadVector.x.sign < 0)
         argument += pi
-    Log.d("Argument", "${loadVector/s * 2}, Argument: $argument")
 
     scale((loadVector.length() / s).absoluteValue, appliedNodeOffset) {
         rotateRad(- argument + pi/2, appliedNodeOffset) {
@@ -228,8 +226,8 @@ fun DrawScope.drawDistributedLoad(
 ) {
     val path = Path()
     path.moveTo(offset1.x, offset1.y)
-    path.lineTo((offset1 + loadVector.toOffset()).x, (offset1 + loadVector.toOffset()).y)
-    path.lineTo((offset2 + loadVector.toOffset()).x, (offset2 + loadVector.toOffset()).y)
+    path.lineTo((offset1 - loadVector.toOffset()).x, (offset1 + loadVector.toOffset()).y)
+    path.lineTo((offset2 - loadVector.toOffset()).x, (offset2 + loadVector.toOffset()).y)
     path.lineTo(offset2.x, offset2.y)
     drawPath(path, Preferences.loadColor, style = Stroke(s/128))
 
@@ -300,6 +298,39 @@ fun DrawScope.chart(
         path = path,
         color = color,
         style = Stroke(Preferences.chartWidth)
+    )
+}
+
+object Directions {
+    val C = Offset(0f, 0f)
+    val R = Offset(1f, 0f)
+    val L = Offset(-1f, 0f)
+    val T = Offset(0f, -1f)
+    val B = Offset(0f, 1f)
+}
+
+
+fun DrawScope.drawLabel(
+    appliedNodeOffset: Offset, string: String,
+    drawArgs: DrawArgs,
+    position: Offset,
+    baseDistance: Float = Preferences.baseScale.toPx() * Preferences.supportSide) {
+
+    drawText(
+        drawArgs.textMeasurer,
+        string,
+        appliedNodeOffset +
+                // reference point
+                position * baseDistance -
+                // string top left displacement
+                Offset(0f, Preferences.textLineSize.toPx()/6) * position.y.sign -
+                // text height discount
+                Offset( Preferences.textSize.toPx()/12, 0f) * string.length.toFloat()/2f,
+                // horizontal centering
+        TextStyle(
+            color = Color.Black,
+            fontSize = Preferences.textSize / 6,
+            textAlign = TextAlign.Center)
     )
 }
 

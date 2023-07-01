@@ -38,69 +38,17 @@ fun DrawScope.drawStructure(drawArgs: DrawArgs, structure: Structure, diagramTyp
 
     // todo: draw given structure
 
+    val a = center - Offset(0f, s/2)
+    val b = center + Offset(0f, s/2)
 
-//    val a = center - Offset(s/2, s/2)
-//    val b = center
-//    val a = center - Offset(0f, s/2)
-//    val b = center + Offset(0f, s/2)
-//
-//    drawBeam(a, b)
-//    drawMoment(a, true, isReaction = true)
-//    drawDistributedLoad(a, b, Offset(30f, 40f))
-//    drawPointLoad(center + Offset(s, 0f), Offset(60f,80f), true)
+    drawBeam(a, b)
+    drawDistributedLoad(a, b, Vector(-30f, -40f))
+    drawPointLoad(center + Offset(s, 0f), Vector(60f,80f), true)
+    drawMoment(a, true, isReaction = true)
 
-    drawCircle(Color.Magenta, s/2, center, style = Stroke())  // unit circle
-    val a = 1/2f
-    val b = sqrt(2f)/2
-    val c = sqrt(3f)/2
-
-    drawPointLoad(center, Vector(1f, 0f) * s/2f, isReaction = true)
-    drawPointLoad(center, Vector(c, a) * s/2f)
-    drawPointLoad(center, Vector(b, b) * s/2f)
-    drawPointLoad(center, Vector(a, c) * s/2f)
-    drawPointLoad(center, Vector(0f, 1f) * s/2f, isReaction = true)
-    drawPointLoad(center, Vector(-a, c) * s/2f)
-    drawPointLoad(center, Vector(-b, b) * s/2f)
-    drawPointLoad(center, Vector(-c, a) * s/2f)
-    drawPointLoad(center, Vector(-1f, 0f) * s/2f, isReaction = true)
-    drawPointLoad(center, Vector(-c, -a) * s/2f)
-    drawPointLoad(center, Vector(-b, -b) * s/2f)
-    drawPointLoad(center, Vector(-a, -c) * s/2f)
-    drawPointLoad(center,  Vector(0f, -1f) * s/2f, isReaction = true)
-    drawPointLoad(center, Vector(a, -c) * s/2f)
-    drawPointLoad(center, Vector(b, -b) * s/2f)
-    drawPointLoad(center, Vector(c, -a) * s/2f)
-
-
-
-//    val axes = generatePoints()
-//
-//    chart(
-//        axes = axes,
-//        color = Color.Magenta,
-//        origin = a,
-//        xEnd = b,
-//        yScale = getYScale(s, axes.second)
-//    )
+    drawLabel((a+b)/2f, 50.u("kN/m"), drawArgs, Directions.R)
+    drawLabel(a, 50.u("kNm"), drawArgs, Directions.T)
 }
-
-fun generatePoints(): Pair<List<Float>, List<Float>> {
-    val points = 10
-    val xLenght = 4
-    // structure for generating x and y values
-    val x = mutableListOf(0f)
-    val y = mutableListOf(f(0f))
-    var i = 0f
-    while (i < points * xLenght){
-        i += 1f
-        x.add(i/points)
-        y.add(f(i/points))
-    }
-
-    return Pair(x, y)
-    // Size(1080.0, 2132.0)
-}
-fun f(x: Float) = (x - 1) * (x - 1) - 1  // sample function, todo: remove after use
 
 /**
  * Return scale that make the axis be limited between -baseScale and baseScale.
@@ -113,3 +61,5 @@ fun getYScale(baseScale: Float, axis: Axis): Float {
 fun Node.toOffset() = Offset(pos.x, pos.y)
 fun Vector.toOffset() = Offset(x, y)
 fun Offset.toVector() = Vector(x, y)
+
+fun Number.u(u: String) = "$this $u"
