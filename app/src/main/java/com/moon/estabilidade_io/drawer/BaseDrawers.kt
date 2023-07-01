@@ -203,8 +203,8 @@ fun DrawScope.drawPointLoad(
 
     val pi = Math.PI.toFloat()
 
-    var argument = atan(loadVector.y/loadVector.x) + pi
-    if (loadVector.x.sign > 0)
+    var argument = atan(loadVector.y/loadVector.x)
+    if (loadVector.x.sign < 0)
         argument += pi
     Log.d("Argument", "${loadVector/s * 2}, Argument: $argument")
 
