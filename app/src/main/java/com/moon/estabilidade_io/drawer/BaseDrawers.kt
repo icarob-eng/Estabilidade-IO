@@ -2,6 +2,7 @@
 
 package com.moon.estabilidade_io.drawer
 
+import android.util.Log
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -138,7 +139,7 @@ fun DrawScope.drawFixed(
     s: Float = Preferences.baseScale.toPx() * Preferences.supportSide
 ) {
     rotate(90f, appliedNodeOffset) {
-        scale(Preferences.supportSide, Preferences.supportSide, appliedNodeOffset) {
+        scale(Preferences.supportSide, appliedNodeOffset) {
         drawCenteredHatches(appliedNodeOffset, 7)
     }}
 }

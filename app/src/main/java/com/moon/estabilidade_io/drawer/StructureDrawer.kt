@@ -1,6 +1,5 @@
 package com.moon.estabilidade_io.drawer
 
-import android.util.Log
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import com.moon.kstability.Axis
@@ -36,7 +35,7 @@ fun DrawScope.drawStructure(
     if (structure.nodes.size == 0) return
     val s = Preferences.baseScale.toPx()
     val b = Basis(structure, s, center)
-    val sCopy = structure.copy()
+    val sCopy = structure.getRotatedCopy(0f) // this actually creates a deep copy
     Stabilization.stabilize(sCopy)
 
     /*
@@ -70,7 +69,6 @@ fun DrawScope.drawStructure(
     if (diagramType == DiagramType.NONE) return
     // here we apply the methods to a copy, so we can compare if the force is or not a reaction
     // todo: scaling
-    // todo: solve double writing (is reaction is wrong)
     val ls = s / 32
     sCopy.getPointLoads().map {
         val isReaction = it !in structure.getPointLoads()
@@ -97,7 +95,7 @@ fun DrawScope.drawStructure(
         }
     }
     // todo: check if order matters
-    sCopy.getDistributedLoads().map {
+    structure.getDistributedLoads().map {
         drawDistributedLoad(it.node1.toOffset(b), it.node2.toOffset(b), it.vector, ls)
         if (loadLabels)
             drawLabel(
