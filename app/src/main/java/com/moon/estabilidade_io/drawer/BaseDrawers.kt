@@ -206,7 +206,7 @@ fun DrawScope.drawPointLoad(
     if (loadVector.x.sign < 0)
         argument += pi
 
-    scale((loadVector.length() / s).absoluteValue, appliedNodeOffset) {
+    scale((loadVector.length()).absoluteValue, appliedNodeOffset) {
         rotateRad(- argument + pi/2, appliedNodeOffset) {
             // transforms the argument to the expected direction
         drawLine(

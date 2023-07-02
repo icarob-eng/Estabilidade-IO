@@ -75,7 +75,6 @@ fun MainCanvasPreview() {
         Modifier
             .fillMaxSize()
             .background(Color.LightGray),
-        // todo: get structure sample
         Structure("A"),
         DiagramType.SHEAR
     )

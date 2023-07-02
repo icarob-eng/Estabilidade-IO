@@ -11,12 +11,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.moon.estabilidade_io.drawer.DiagramType
 import com.moon.estabilidade_io.drawer.MainCanvas
+import com.moon.estabilidade_io.drawer.trussSample
 import com.moon.estabilidade_io.ui.theme.EstabilidadeIOTheme
 import com.moon.kstability.Structure
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val sample = trussSample.copy(name="MainActivity Sample")
+
         setContent {
             EstabilidadeIOTheme {
                 // A surface container using the 'background' color from the theme
@@ -29,9 +33,9 @@ class MainActivity : ComponentActivity() {
                             .fillMaxSize()
                             .background(Color.LightGray),
                         // generate structure and pass it here
-                        Structure("A"),
+                        sample,
                         // select the desired DiagramType @see StructureDrawer.DiagramType
-                        DiagramType.SHEAR
+                        DiagramType.NONE
                     )
                 }
             }
