@@ -29,12 +29,12 @@ enum class DiagramType {
 
 fun DrawScope.drawStructure(
     drawArgs: DrawArgs,
-    structure: Structure,
-    diagramType: DiagramType,
+    diagramType: DiagramType,  // todo: remove this
     nodeLabels: Boolean = false,
     loadLabels: Boolean = true
 ) {
     drawTest(1f) // draw scale test
+    val structure = drawArgs.structure
     if (structure.nodes.size == 0) return
     val s = Preferences.baseScale.toPx()
     val b = Basis(structure, s, center)
@@ -149,7 +149,7 @@ fun DrawScope.drawStructure(
 /**
  * Return scale that make the axis be limited between -baseScale and baseScale.
  */
-fun getYScale(baseScale: Float, axis: Axis): Float {
+fun getYScale(baseScale: Float, axis: Axis): Float { // todo: move to canvas
     val absMax = if (axis.max() >= axis.min().absoluteValue) axis.max() else axis.min().absoluteValue
     return baseScale / if (absMax != 0f) absMax else 1f
 }
@@ -160,13 +160,9 @@ fun Offset.toVector() = Vector(x, y)
 
 fun Number.u(u: String) = "$this $u"
 
-class Basis(structure: Structure, baseLength: Float, center: Offset) {
-    val scale: Float
-    val origin: Offset
-    init {
-        scale = baseLength
-        origin = center -
-            (structure.nodes.map{ it.pos }.reduce {acc: Vector, next: Vector ->  acc + next} *scale/
-                    structure.nodes.size).toOffset() // finds mean point
-    }
+class Basis(structure: Structure, baseLength: Float, center: Offset) {  // todo: use drawArgs.meanPoint
+    val scale: Float = baseLength
+    val origin: Offset = center -
+    (structure.nodes.map{ it.pos }.reduce {acc: Vector, next: Vector ->  acc + next} *scale/
+    structure.nodes.size).toOffset() // finds mean point
 }

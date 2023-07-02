@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.drawscope.rotateRad
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.style.TextAlign
@@ -25,7 +26,7 @@ import kotlin.math.absoluteValue
 import kotlin.math.atan
 import kotlin.math.sign
 
-fun DrawScope.drawScaleLabel(drawArgs: DrawArgs) {
+fun DrawScope.drawScaleLabel(textMeasurer: TextMeasurer, scaleValue: Float) {
     val s = Preferences.baseScale.toPx()
 
     val baseOffset = Offset(
@@ -33,12 +34,12 @@ fun DrawScope.drawScaleLabel(drawArgs: DrawArgs) {
         (size.height - Preferences.scaleBottomMargin.toPx())
     )
     val endOffset = baseOffset +
-            Offset(s * drawArgs.scaleValue, 0f)
+            Offset(s * scaleValue, 0f)
 
     drawLine(color = Color.Black, start = baseOffset, end = endOffset, strokeWidth = 5.dp.toPx())
 
     drawText(
-        drawArgs.textMeasurer,
+        textMeasurer,
         "1 m",
         baseOffset + Offset(0f, - Preferences.textLineSize.toPx()),
         TextStyle(color = Color.Black, fontSize = Preferences.textSize)

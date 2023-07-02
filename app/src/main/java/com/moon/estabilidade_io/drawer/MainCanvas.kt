@@ -18,16 +18,46 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.rememberTextMeasurer
+import com.moon.kstability.Axes
+import com.moon.kstability.Beam
+import com.moon.kstability.Polynomial
+import com.moon.kstability.Stabilization
 import com.moon.kstability.Structure
+import com.moon.kstability.Vector
 import kotlin.math.sqrt
 
 
+// todo: doc this class
 data class DrawArgs @OptIn(ExperimentalTextApi::class) constructor(
-    var scaleValue: Float,
-    var offsetValue: Offset,
-    var rotationValue: Float,
-    val textMeasurer: TextMeasurer
-)
+    val textMeasurer: TextMeasurer,
+    val structure: Structure,
+    val diagramType: DiagramType
+) {
+    val maxSide: Float = structure.nodes.maxOf { it.pos.x } - structure.nodes.minOf { it.pos.x }
+    val meanPoint: Vector =
+        structure.nodes.map{ it.pos }.reduce { acc: Vector, next: Vector ->  acc + next} /
+            structure.nodes.size
+    val loadScale: Float = getMaxLoad(structure)
+
+    val stableCopy = structure.getRotatedCopy(0f).also { Stabilization.stabilize(it) }  // this actually creates a deep copy
+    val diagrams = mutableMapOf<Beam, Pair<Axes, List<Polynomial>>>()
+    val sLoadScale: Float = getMaxLoad(stableCopy)
+    val yMax: Float
+        get() {
+            TODO()
+        }
+
+
+    init {
+        diagrams
+
+        yMax = TODO()
+    }
+
+    private fun getMaxLoad(structure: Structure): Float {
+        TODO()
+    }
+}
 
 @OptIn(ExperimentalTextApi::class)
 @Composable
@@ -44,19 +74,21 @@ fun MainCanvas(modifier: Modifier, structure: Structure, diagramType: DiagramTyp
 //        rotationValue += rotationChange
 //        offsetValue += offsetChange
     }
-    val textMeasurer = rememberTextMeasurer()
+    val dA= DrawArgs(rememberTextMeasurer(), structure, diagramType)
 
     Canvas (modifier =
     modifier
         .pointerInput(Unit) {
             detectDragGestures { change, dragAmount ->
                 change.consume()
-                offsetValue += dragAmount * sqrt(scaleValue)/2f
+                offsetValue += dragAmount * sqrt(scaleValue) / 2f
                 offsetValue = Offset(
                     offsetValue.x.coerceIn(
-                        -size.width * sqrt(scaleValue), size.width * sqrt(scaleValue)),
+                        -size.width * sqrt(scaleValue), size.width * sqrt(scaleValue)
+                    ),
                     offsetValue.y.coerceIn(
-                        -size.height * sqrt(scaleValue), size.height * sqrt(scaleValue))
+                        -size.height * sqrt(scaleValue), size.height * sqrt(scaleValue)
+                    )
                 )
             } // detect translation from single touch input
         }
@@ -68,12 +100,9 @@ fun MainCanvas(modifier: Modifier, structure: Structure, diagramType: DiagramTyp
         }
         .transformable(transformableState)  // detects rotation and dual touch, etc
     ) {
-
-        val dA= DrawArgs(scaleValue, offsetValue, 0f, textMeasurer)
-
         translate (offsetValue.x, offsetValue.y) { scale(scaleValue) {
-            drawStructure(dA, structure, diagramType)
+            drawStructure(dA, diagramType)
         }}
-        drawScaleLabel(dA)  // remains in the same place
+        drawScaleLabel(dA.textMeasurer, scaleValue)  // remains in the same place
     }
 }
