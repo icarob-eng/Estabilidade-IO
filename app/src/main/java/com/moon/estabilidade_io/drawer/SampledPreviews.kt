@@ -35,7 +35,7 @@ fun StructureSampleAPreview() {
             .fillMaxSize()
             .background(Color.LightGray),
         sampleA,
-        DiagramType.REACTIONS
+        DiagramType.SHEAR
     )
 }
 

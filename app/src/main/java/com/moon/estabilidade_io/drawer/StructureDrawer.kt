@@ -2,9 +2,12 @@ package com.moon.estabilidade_io.drawer
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import com.moon.kstability.Axes
 import com.moon.kstability.Axis
+import com.moon.kstability.Beam
 import com.moon.kstability.Diagrams
 import com.moon.kstability.Node
+import com.moon.kstability.Polynomial
 import com.moon.kstability.Stabilization
 import com.moon.kstability.Structure
 import com.moon.kstability.Support
@@ -112,7 +115,35 @@ fun DrawScope.drawStructure(
         DiagramType.MOMENT -> Diagrams::generateMomentFunction
         else -> return
     }
-    // todo: plot diagrams
+    val color = when (diagramType) {
+        DiagramType.NORMAL -> Preferences.normalDiagramColor
+        DiagramType.SHEAR -> Preferences.shearDiagramColor
+        DiagramType.MOMENT -> Preferences.momentDiagramColor
+        else -> return
+    }
+    val diagrams = mutableMapOf<Beam, Pair<Axes, List<Polynomial>>>()
+    structure.getBeams().map{ diagrams.put(
+        it,
+        Diagrams.getDiagram(sCopy, it, diagramFun, 0.01f)
+    )}
+    val yScale = diagrams.map { entry -> getYScale(s, entry.value.first.second) }.min()
+
+    diagrams.map {entry ->
+        chart(
+            entry.value.first,
+            color,
+            entry.key.node1.toOffset(b),
+            entry.key.node2.toOffset(b),
+            yScale
+        )
+        if (loadLabels)
+            drawLabel(
+                (entry.key.node1.toOffset(b) + entry.key.node2.toOffset(b))/2f,
+                entry.value.second.first().toString(), // todo: draw each label
+                drawArgs,
+                Directions.T
+            )
+    }
 }
 
 /**
@@ -136,6 +167,6 @@ class Basis(structure: Structure, baseLength: Float, center: Offset) {
         scale = baseLength
         origin = center -
             (structure.nodes.map{ it.pos }.reduce {acc: Vector, next: Vector ->  acc + next} *scale/
-                    structure.nodes.size).toOffset() // find mean point
+                    structure.nodes.size).toOffset() // finds mean point
     }
 }

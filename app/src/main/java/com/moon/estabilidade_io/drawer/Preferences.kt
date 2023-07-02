@@ -39,4 +39,8 @@ object Preferences {
 
     val loadColor = Color.Blue
     val reactionColor = Color.Red
+
+    val normalDiagramColor = Color.Magenta
+    val shearDiagramColor = Color.Yellow
+    val momentDiagramColor = Color.Green
 }
