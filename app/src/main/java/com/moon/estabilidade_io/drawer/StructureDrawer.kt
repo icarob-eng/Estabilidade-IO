@@ -2,17 +2,11 @@ package com.moon.estabilidade_io.drawer
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import com.moon.kstability.Axes
-import com.moon.kstability.Axis
-import com.moon.kstability.Beam
-import com.moon.kstability.Diagrams
+import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.TextMeasurer
 import com.moon.kstability.Node
-import com.moon.kstability.Polynomial
-import com.moon.kstability.Stabilization
-import com.moon.kstability.Structure
 import com.moon.kstability.Support
 import com.moon.kstability.Vector
-import kotlin.math.absoluteValue
 
 enum class DiagramType {
     /**
@@ -23,23 +17,37 @@ enum class DiagramType {
      * @property NORMAL Draw the structure, reaction forces and Normal Stress Diagram
      * @property SHEAR Draw the structure, reaction forces and Shear Stress Diagram
      * @property MOMENT Draw the structure, reaction forces and Bending Moment Diagram
+     *
+     * @see MainCanvas
+     * @see drawStructure
      */
     NONE, LOADS, REACTIONS, NORMAL, SHEAR, MOMENT
 }
 
+/**
+ * Draws an entire `Structure`, with preloaded `StructureProperties`.
+ *
+ * @param sProperties Where most arguments are passed, including the structure and its properties.
+ * @param diagramType Selects what will be drawn. See enum.
+ * @param textMeasurer Necessary for printing labels.
+ * @param nodeLabels Determines if each node name will be printed.
+ * @param loadLabels Determines if load values and polynomials will be printed.
+ *
+ * @see DiagramType
+ */
+@OptIn(ExperimentalTextApi::class)
 fun DrawScope.drawStructure(
-    drawArgs: DrawArgs,
-    diagramType: DiagramType,  // todo: remove this
+    sProperties: StructureProperties,
+    diagramType: DiagramType,
+    textMeasurer: TextMeasurer,
     nodeLabels: Boolean = false,
     loadLabels: Boolean = true
 ) {
     drawTest(1f) // draw scale test
-    val structure = drawArgs.structure
+    val structure = sProperties.structure
     if (structure.nodes.size == 0) return
     val s = Preferences.baseScale.toPx()
-    val b = Basis(structure, s, center)
-    val sCopy = structure.getRotatedCopy(0f) // this actually creates a deep copy
-    Stabilization.stabilize(sCopy)
+    val b = Basis(sProperties.meanPoint.toOffset(), s, center)
 
     /*
     # Draw order:
@@ -49,6 +57,7 @@ fun DrawScope.drawStructure(
     4. Loads
     5. Charts
      */
+    // --- supports ---
     structure.getSupports().map {
         when (it.gender) {
             // todo: rotate support
@@ -59,29 +68,34 @@ fun DrawScope.drawStructure(
             Support.Gender.THIRD -> drawFixed(it.node.toOffset(b))
         }
     }
+    // --- beams ---
     // todo: check if order matters
     structure.getBeams().map {
         drawBeam(it.node1.toOffset(b), it.node2.toOffset(b))
     }
+    // --- nodes ---
     structure.nodes.map {
         drawNode(it.toOffset(b))
         if (nodeLabels && it.beams.isNotEmpty())
-            drawLabel(it.toOffset(b), it.name, drawArgs, Directions.T)
+            drawLabel(it.toOffset(b), it.name, textMeasurer, Directions.T)
     }
 
     if (diagramType == DiagramType.NONE) return
+    // --- loads and reactions ---
+
     // here we apply the methods to a copy, so we can compare if the force is or not a reaction
-    // todo: scaling
-    val ls = s / 32
-    sCopy.getPointLoads().map {
+    val loadScale = Preferences.supportSide * s /
+            if(diagramType != DiagramType.LOADS) sProperties.sMaxLoad else sProperties.maxLoad
+
+    sProperties.stableCopy.getPointLoads().map {
         val isReaction = it !in structure.getPointLoads()
         if (isReaction && diagramType != DiagramType.LOADS || !isReaction) {
-            drawPointLoad(it.node.toOffset(b), it.vector, isReaction, ls)
+            drawPointLoad(it.node.toOffset(b), it.vector, isReaction, loadScale)
             if (loadLabels)
-                drawLabel(it.node.toOffset(b), it.vector.length().u("kN"), drawArgs, Directions.T)
+                drawLabel(it.node.toOffset(b), it.vector.length().u("kN"), textMeasurer, Directions.T)
         }
     }
-    sCopy.nodes.map {
+    sProperties.stableCopy.nodes.map {
         val eqvNode = structure.nodes.find { node -> it.name == node.name }!!
         var resultMoment = eqvNode.momentum
         var isReaction = false
@@ -94,41 +108,31 @@ fun DrawScope.drawStructure(
         if (resultMoment != 0f) {
             drawMoment(it.toOffset(b), resultMoment < 0f, isReaction)
             if (loadLabels)
-                drawLabel(it.toOffset(b), resultMoment.u("kNm"), drawArgs, Directions.T)
+                drawLabel(it.toOffset(b), resultMoment.u("kNm"), textMeasurer, Directions.T)
         }
     }
     // todo: check if order matters
     structure.getDistributedLoads().map {
-        drawDistributedLoad(it.node1.toOffset(b), it.node2.toOffset(b), it.vector, ls)
+        drawDistributedLoad(it.node1.toOffset(b), it.node2.toOffset(b), it.vector, loadScale)
         if (loadLabels)
             drawLabel(
                 (it.node1.toOffset(b) + it.node2.toOffset(b))/2f,
                 it.vector.length().u("kN/M"),
-                drawArgs,
+                textMeasurer,
                 it.vector.normalize().toOffset()
             )
     }
 
-    val diagramFun = when (diagramType) {
-        DiagramType.NORMAL -> Diagrams::generateNormalFunction
-        DiagramType.SHEAR -> Diagrams::generateShearFunction
-        DiagramType.MOMENT -> Diagrams::generateMomentFunction
-        else -> return
-    }
+    // --- charts ---
     val color = when (diagramType) {
         DiagramType.NORMAL -> Preferences.normalDiagramColor
         DiagramType.SHEAR -> Preferences.shearDiagramColor
         DiagramType.MOMENT -> Preferences.momentDiagramColor
         else -> return
     }
-    val diagrams = mutableMapOf<Beam, Pair<Axes, List<Polynomial>>>()
-    structure.getBeams().map{ diagrams.put(
-        it,
-        Diagrams.getDiagram(sCopy, it, diagramFun, 0.01f)
-    )}
-    val yScale = diagrams.map { entry -> getYScale(s, entry.value.first.second) }.min()
+    val yScale = s / sProperties.absYMax
 
-    diagrams.map {entry ->
+    sProperties.diagrams.map {entry ->
         chart(
             entry.value.first,
             color,
@@ -140,18 +144,10 @@ fun DrawScope.drawStructure(
             drawLabel(
                 (entry.key.node1.toOffset(b) + entry.key.node2.toOffset(b))/2f,
                 entry.value.second.first().toString(), // todo: draw each label
-                drawArgs,
+                textMeasurer,
                 Directions.T
             )
     }
-}
-
-/**
- * Return scale that make the axis be limited between -baseScale and baseScale.
- */
-fun getYScale(baseScale: Float, axis: Axis): Float { // todo: move to canvas
-    val absMax = if (axis.max() >= axis.min().absoluteValue) axis.max() else axis.min().absoluteValue
-    return baseScale / if (absMax != 0f) absMax else 1f
 }
 
 fun Node.toOffset(basis: Basis) = (Offset(pos.x, -pos.y) * basis.scale + basis.origin)
@@ -160,9 +156,7 @@ fun Offset.toVector() = Vector(x, y)
 
 fun Number.u(u: String) = "$this $u"
 
-class Basis(structure: Structure, baseLength: Float, center: Offset) {  // todo: use drawArgs.meanPoint
+class Basis(meanPoint: Offset, baseLength: Float, center: Offset) {
     val scale: Float = baseLength
-    val origin: Offset = center -
-    (structure.nodes.map{ it.pos }.reduce {acc: Vector, next: Vector ->  acc + next} *scale/
-    structure.nodes.size).toOffset() // finds mean point
+    val origin: Offset = center - meanPoint * scale
 }

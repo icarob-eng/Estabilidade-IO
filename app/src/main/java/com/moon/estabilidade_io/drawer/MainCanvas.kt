@@ -16,52 +16,27 @@ import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.ExperimentalTextApi
-import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.rememberTextMeasurer
-import com.moon.kstability.Axes
-import com.moon.kstability.Beam
-import com.moon.kstability.Polynomial
-import com.moon.kstability.Stabilization
 import com.moon.kstability.Structure
-import com.moon.kstability.Vector
 import kotlin.math.sqrt
 
 
-// todo: doc this class
-data class DrawArgs @OptIn(ExperimentalTextApi::class) constructor(
-    val textMeasurer: TextMeasurer,
-    val structure: Structure,
-    val diagramType: DiagramType
-) {
-    val maxSide: Float = structure.nodes.maxOf { it.pos.x } - structure.nodes.minOf { it.pos.x }
-    val meanPoint: Vector =
-        structure.nodes.map{ it.pos }.reduce { acc: Vector, next: Vector ->  acc + next} /
-            structure.nodes.size
-    val loadScale: Float = getMaxLoad(structure)
-
-    val stableCopy = structure.getRotatedCopy(0f).also { Stabilization.stabilize(it) }  // this actually creates a deep copy
-    val diagrams = mutableMapOf<Beam, Pair<Axes, List<Polynomial>>>()
-    val sLoadScale: Float = getMaxLoad(stableCopy)
-    val yMax: Float
-        get() {
-            TODO()
-        }
-
-
-    init {
-        diagrams
-
-        yMax = TODO()
-    }
-
-    private fun getMaxLoad(structure: Structure): Float {
-        TODO()
-    }
-}
-
+/**
+ * Draw a given `Structure`, with some parameters. Also, pre-calculates some properties of the
+ * structure and is responsible for gesture handling.
+ *
+ * @param modifier Regular composable modifier.
+ * @param structure The structure that will be drawn.
+ * @param diagramType Determines what will be drawn. See enum.
+ *
+ * @see DiagramType
+ */
 @OptIn(ExperimentalTextApi::class)
 @Composable
 fun MainCanvas(modifier: Modifier, structure: Structure, diagramType: DiagramType) {
+    val properties = StructureProperties(structure, diagramType)
+    val textMeasurer = rememberTextMeasurer()
+
     // gesture handling:
     var scaleValue by remember { mutableStateOf(2f) }
 //    var rotationValue by remember { mutableStateOf(0f) }
@@ -74,7 +49,6 @@ fun MainCanvas(modifier: Modifier, structure: Structure, diagramType: DiagramTyp
 //        rotationValue += rotationChange
 //        offsetValue += offsetChange
     }
-    val dA= DrawArgs(rememberTextMeasurer(), structure, diagramType)
 
     Canvas (modifier =
     modifier
@@ -101,8 +75,8 @@ fun MainCanvas(modifier: Modifier, structure: Structure, diagramType: DiagramTyp
         .transformable(transformableState)  // detects rotation and dual touch, etc
     ) {
         translate (offsetValue.x, offsetValue.y) { scale(scaleValue) {
-            drawStructure(dA, diagramType)
+            drawStructure(properties, diagramType, textMeasurer)
         }}
-        drawScaleLabel(dA.textMeasurer, scaleValue)  // remains in the same place
+        drawScaleLabel(textMeasurer, scaleValue)  // remains in the same place
     }
 }

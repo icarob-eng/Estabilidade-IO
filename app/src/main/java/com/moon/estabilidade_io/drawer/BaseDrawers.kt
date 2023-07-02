@@ -2,7 +2,6 @@
 
 package com.moon.estabilidade_io.drawer
 
-import android.util.Log
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -299,7 +298,7 @@ fun DrawScope.chart(
     drawPath(
         path = path,
         color = color,
-        style = Stroke(Preferences.chartWidth)
+        style = Stroke(Preferences.chartAbsWidth)
     )
 }
 
@@ -314,12 +313,12 @@ object Directions {
 
 fun DrawScope.drawLabel(
     appliedNodeOffset: Offset, string: String,
-    drawArgs: DrawArgs,
+    textMeasurer: TextMeasurer,
     position: Offset,
     baseDistance: Float = Preferences.baseScale.toPx() * Preferences.supportSide) {
 
     drawText(
-        drawArgs.textMeasurer,
+        textMeasurer,
         string,
         appliedNodeOffset +
                 // reference point
