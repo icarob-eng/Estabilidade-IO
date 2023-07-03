@@ -46,8 +46,10 @@ fun DrawScope.drawStructure(
     drawTest(1f) // draw scale test
     val structure = sProperties.structure
     if (structure.nodes.size == 0) return
-    val s = Preferences.baseScale.toPx()
-    val b = Basis(sProperties.meanPoint.toOffset(), s, center)
+    val b = Basis(sProperties.meanPoint.toOffset(), Preferences.baseScale.toPx(), center)
+    // independent of drawScale
+    val s = Preferences.baseScale.toPx() * sProperties.maxSize / 2f
+    val ss = s * Preferences.supportSide
 
     /*
     # Draw order:
@@ -61,23 +63,23 @@ fun DrawScope.drawStructure(
     structure.getSupports().map {
         when (it.gender) {
             // todo: rotate support
-            Support.Gender.FIRST -> if (Preferences.useRollerB) drawRollerB(it.node.toOffset(b))
-            else drawRoller(it.node.toOffset(b))
+            Support.Gender.FIRST -> if (Preferences.useRollerB) drawRollerB(it.node.toOffset(b), ss)
+            else drawRoller(it.node.toOffset(b), ss)
 
-            Support.Gender.SECOND -> drawHinge(it.node.toOffset(b))
-            Support.Gender.THIRD -> drawFixed(it.node.toOffset(b))
+            Support.Gender.SECOND -> drawHinge(it.node.toOffset(b), ss)
+            Support.Gender.THIRD -> drawFixed(it.node.toOffset(b), ss)
         }
     }
     // --- beams ---
     // todo: check if order matters
     structure.getBeams().map {
-        drawBeam(it.node1.toOffset(b), it.node2.toOffset(b))
+        drawBeam(it.node1.toOffset(b), it.node2.toOffset(b), s)
     }
     // --- nodes ---
     structure.nodes.map {
-        drawNode(it.toOffset(b))
+        drawNode(it.toOffset(b), s)
         if (nodeLabels && it.beams.isNotEmpty())
-            drawLabel(it.toOffset(b), it.name, textMeasurer, Directions.T)
+            drawLabel(it.toOffset(b), it.name, textMeasurer, Directions.L, ss)
     }
 
     if (diagramType == DiagramType.NONE) return
@@ -92,7 +94,9 @@ fun DrawScope.drawStructure(
         if (isReaction && diagramType != DiagramType.LOADS || !isReaction) {
             drawPointLoad(it.node.toOffset(b), it.vector, isReaction, loadScale)
             if (loadLabels)
-                drawLabel(it.node.toOffset(b), it.vector.length().u("kN"), textMeasurer, Directions.T)
+                drawLabel(
+                    it.node.toOffset(b), it.vector.length().u("kN"), textMeasurer, Directions.T, ss
+                )
         }
     }
     sProperties.stableCopy.nodes.map {
@@ -106,9 +110,9 @@ fun DrawScope.drawStructure(
         }
 
         if (resultMoment != 0f) {
-            drawMoment(it.toOffset(b), resultMoment < 0f, isReaction)
+            drawMoment(it.toOffset(b), resultMoment < 0f, isReaction, ss)
             if (loadLabels)
-                drawLabel(it.toOffset(b), resultMoment.u("kNm"), textMeasurer, Directions.T)
+                drawLabel(it.toOffset(b), resultMoment.u("kNm"), textMeasurer, Directions.C, ss)
         }
     }
     // todo: check if order matters
@@ -119,7 +123,8 @@ fun DrawScope.drawStructure(
                 (it.node1.toOffset(b) + it.node2.toOffset(b))/2f,
                 it.vector.length().u("kN/M"),
                 textMeasurer,
-                it.vector.normalize().toOffset()
+                it.vector.normalize().toOffset(),
+                ss
             )
     }
 
@@ -145,7 +150,8 @@ fun DrawScope.drawStructure(
                 (entry.key.node1.toOffset(b) + entry.key.node2.toOffset(b))/2f,
                 entry.value.second.first().toString(), // todo: draw each label
                 textMeasurer,
-                Directions.T
+                Directions.B,
+                ss
             )
     }
 }

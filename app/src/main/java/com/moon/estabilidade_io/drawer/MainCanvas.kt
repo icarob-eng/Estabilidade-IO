@@ -36,9 +36,10 @@ import kotlin.math.sqrt
 fun MainCanvas(modifier: Modifier, structure: Structure, diagramType: DiagramType) {
     val properties = StructureProperties(structure, diagramType)
     val textMeasurer = rememberTextMeasurer()
+    var defaultSize = 2f
 
     // gesture handling:
-    var scaleValue by remember { mutableStateOf(2f) }
+    var scaleValue by remember { mutableStateOf(defaultSize) }
 //    var rotationValue by remember { mutableStateOf(0f) }
     var offsetValue by remember { mutableStateOf(Offset.Zero) }
     val transformableState = rememberTransformableState { zoomChange, _, _ -> // offsetChange, rotationChange ->
@@ -49,19 +50,18 @@ fun MainCanvas(modifier: Modifier, structure: Structure, diagramType: DiagramTyp
 //        rotationValue += rotationChange
 //        offsetValue += offsetChange
     }
-
     Canvas (modifier =
     modifier
         .pointerInput(Unit) {
             detectDragGestures { change, dragAmount ->
                 change.consume()
-                offsetValue += dragAmount * sqrt(scaleValue) / 2f
+                offsetValue += dragAmount / scaleValue
                 offsetValue = Offset(
                     offsetValue.x.coerceIn(
-                        -size.width * sqrt(scaleValue), size.width * sqrt(scaleValue)
+                        -size.width / sqrt(2 * scaleValue), size.width / sqrt(2 * scaleValue)
                     ),
                     offsetValue.y.coerceIn(
-                        -size.height * sqrt(scaleValue), size.height * sqrt(scaleValue)
+                        -size.height / sqrt(2 * scaleValue), size.height / sqrt(2 * scaleValue)
                     )
                 )
             } // detect translation from single touch input
@@ -69,12 +69,13 @@ fun MainCanvas(modifier: Modifier, structure: Structure, diagramType: DiagramTyp
         .pointerInput(Unit) {
             detectTapGestures(onDoubleTap = {
                 offsetValue = Offset(0f, 0f)
-                scaleValue = 2f
+                scaleValue = defaultSize
             })
         }
         .transformable(transformableState)  // detects rotation and dual touch, etc
     ) {
-        translate (offsetValue.x, offsetValue.y) { scale(scaleValue) {
+        defaultSize = size.width / (properties.maxSize * Preferences.baseScale.toPx()) * 3/5
+        scale(scaleValue) { translate (offsetValue.x, offsetValue.y) {
             drawStructure(properties, diagramType, textMeasurer)
         }}
         drawScaleLabel(textMeasurer, scaleValue)  // remains in the same place
