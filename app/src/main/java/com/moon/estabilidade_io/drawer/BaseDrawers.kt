@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.dp
 import com.moon.kstability.Axes
 import com.moon.kstability.Vector
 import kotlin.math.absoluteValue
-import kotlin.math.atan
 import kotlin.math.sign
 
 fun DrawScope.drawScaleLabel(textMeasurer: TextMeasurer, scaleValue: Float) {
@@ -201,14 +200,8 @@ fun DrawScope.drawPointLoad(
 ) {
     val color = if (isReaction) Preferences.reactionColor else Preferences.loadColor
 
-    val pi = Math.PI.toFloat()
-
-    var argument = atan(loadVector.y/loadVector.x)
-    if (loadVector.x.sign < 0)
-        argument += pi
-
     scale((loadVector.length()).absoluteValue, appliedNodeOffset) {
-        rotateRad(- argument + pi/2, appliedNodeOffset) {
+        rotateRad(loadVector.rotationArg(), appliedNodeOffset) {
             // transforms the argument to the expected direction
         drawLine(
             color,

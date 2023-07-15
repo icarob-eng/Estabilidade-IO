@@ -2,11 +2,15 @@ package com.moon.estabilidade_io.drawer
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.rotateRad
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextMeasurer
 import com.moon.kstability.Node
 import com.moon.kstability.Support
 import com.moon.kstability.Vector
+import kotlin.math.PI
+import kotlin.math.atan
+import kotlin.math.sign
 
 enum class DiagramType {
     /**
@@ -61,14 +65,14 @@ fun DrawScope.drawStructure(
      */
     // --- supports ---
     structure.getSupports().map {
-        when (it.gender) {
-            // todo: rotate support
-            Support.Gender.FIRST -> if (Preferences.useRollerB) drawRollerB(it.node.toOffset(b), ss)
-            else drawRoller(it.node.toOffset(b), ss)
+        rotateRad(it.direction.rotationArg(), it.node.toOffset(b)) {
+            when (it.gender) {
+                Support.Gender.FIRST -> if (Preferences.useRollerB) drawRollerB(it.node.toOffset(b), ss)
+                else drawRoller(it.node.toOffset(b), ss)
 
-            Support.Gender.SECOND -> drawHinge(it.node.toOffset(b), ss)
-            Support.Gender.THIRD -> drawFixed(it.node.toOffset(b), ss)
-        }
+                Support.Gender.SECOND -> drawHinge(it.node.toOffset(b), ss)
+                Support.Gender.THIRD -> drawFixed(it.node.toOffset(b), ss)
+            }}
     }
     // --- beams ---
     // todo: check if order matters
@@ -159,6 +163,10 @@ fun DrawScope.drawStructure(
 fun Node.toOffset(basis: Basis) = (Offset(pos.x, -pos.y) * basis.scale + basis.origin)
 fun Vector.toOffset() = Offset(x, -y)
 fun Offset.toVector() = Vector(x, y)
+
+fun Vector.rotationArg() =
+    - (atan(this.y/this.x) + (if (this.x.sign < 0) PI.toFloat() else 0f)) +
+        PI.toFloat()/2
 
 fun Number.u(u: String) = "$this $u"
 

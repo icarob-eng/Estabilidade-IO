@@ -39,6 +39,32 @@ fun StructureSampleAPreview() {
     )
 }
 
+val sampleB = Structure("Basic Sample B", mutableListOf(
+    Node("A", Vector(0,0)).apply {
+        Support(this, Support.Gender.SECOND, (Vector.Consts.VERTICAL -Vector.Consts.HORIZONTAL)/2)
+    },
+    Node("B", Vector(1, 0)).apply {
+        PointLoad(this, Vector(0,-10))
+    },
+    Node("C", Vector(2,0)).apply {
+        Support(this, Support.Gender.FIRST, Vector.Consts.VERTICAL)
+    }
+)).also {
+    Beam(it.nodes.first(), it.nodes.last())
+}
+
+@Preview
+@Composable
+fun StructureSampleBPreview() {
+    MainCanvas(
+        Modifier
+            .fillMaxSize()
+            .background(Color.LightGray),
+        sampleB,
+        DiagramType.SHEAR
+    )
+}
+
 val trussSample = Structure("Truss sample", mutableListOf(
     Node("A", Vector(0,0)).apply {
         Support(this, Support.Gender.SECOND, Vector.Consts.VERTICAL)
@@ -65,7 +91,7 @@ val trussSample = Structure("Truss sample", mutableListOf(
 
 @Preview
 @Composable
-fun StructureSampleBPreview() {
+fun StructureSampleCPreview() {
     MainCanvas(
         Modifier
             .fillMaxSize()
