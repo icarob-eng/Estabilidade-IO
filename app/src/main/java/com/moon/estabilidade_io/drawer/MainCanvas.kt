@@ -36,10 +36,11 @@ import kotlin.math.sqrt
 fun MainCanvas(modifier: Modifier, structure: Structure, diagramType: DiagramType) {
     val properties = StructureProperties(structure, diagramType)
     val textMeasurer = rememberTextMeasurer()
-    var defaultSize = 2f
+    var framedScale = 2f
+    var undefinedFrame = true  // tells if the framedScale still default
 
     // gesture handling:
-    var scaleValue by remember { mutableStateOf(defaultSize) }
+    var scaleValue by remember { mutableStateOf(framedScale) }
 //    var rotationValue by remember { mutableStateOf(0f) }
     var offsetValue by remember { mutableStateOf(Offset.Zero) }
     val transformableState = rememberTransformableState { zoomChange, _, _ -> // offsetChange, rotationChange ->
@@ -69,12 +70,16 @@ fun MainCanvas(modifier: Modifier, structure: Structure, diagramType: DiagramTyp
         .pointerInput(Unit) {
             detectTapGestures(onDoubleTap = {
                 offsetValue = Offset(0f, 0f)
-                scaleValue = defaultSize
+                scaleValue = framedScale
             })
         }
         .transformable(transformableState)  // detects rotation and dual touch, etc
     ) {
-        defaultSize = size.width / (properties.maxSize * Preferences.baseScale.toPx()) * 3/5
+        framedScale = size.width / (properties.maxSize * Preferences.baseScale.toPx()) * 3/5
+        if (undefinedFrame) {
+            scaleValue = framedScale
+            undefinedFrame = false
+        }
         scale(scaleValue) { translate (offsetValue.x, offsetValue.y) {
             drawStructure(properties, diagramType, textMeasurer)
         }}

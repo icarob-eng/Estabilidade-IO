@@ -2,10 +2,13 @@ package com.moon.estabilidade_io.drawer
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.moon.kstability.Beam
 import com.moon.kstability.Node
 import com.moon.kstability.PointLoad
@@ -94,7 +97,7 @@ val trussSample = Structure("Truss sample", mutableListOf(
 fun StructureSampleCPreview() {
     MainCanvas(
         Modifier
-            .fillMaxSize()
+            .size(LocalConfiguration.current.screenWidthDp.dp/2)
             .background(Color.LightGray),
         trussSample,
         DiagramType.NONE
