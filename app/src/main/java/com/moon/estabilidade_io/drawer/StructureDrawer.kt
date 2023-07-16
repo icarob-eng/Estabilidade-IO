@@ -75,7 +75,7 @@ fun DrawScope.drawStructure(
             }}
     }
     // --- beams ---
-    // todo: check if order matters
+
     structure.getBeams().map {
         drawBeam(it.node1.toOffset(b), it.node2.toOffset(b), s)
     }
@@ -119,7 +119,7 @@ fun DrawScope.drawStructure(
                 drawLabel(it.toOffset(b), resultMoment.u("kNm"), textMeasurer, Directions.C, ss)
         }
     }
-    // todo: check if order matters
+
     structure.getDistributedLoads().map {
         drawDistributedLoad(it.node1.toOffset(b), it.node2.toOffset(b), it.vector, loadScale)
         if (loadLabels)
@@ -164,9 +164,10 @@ fun Node.toOffset(basis: Basis) = (Offset(pos.x, -pos.y) * basis.scale + basis.o
 fun Vector.toOffset() = Offset(x, -y)
 fun Offset.toVector() = Vector(x, y)
 
-fun Vector.rotationArg() =
-    - (atan(this.y/this.x) + (if (this.x.sign < 0) PI.toFloat() else 0f)) +
-        PI.toFloat()/2
+fun Vector.rotationArg() =  // damn this -0f!!!!
+    - (atan(inclination()) +
+            (if (x.sign < 0f) PI.toFloat() else 0f)) +
+            PI.toFloat()/2
 
 fun Number.u(u: String) = "$this $u"
 

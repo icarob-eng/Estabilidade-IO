@@ -1,5 +1,6 @@
 package com.moon.estabilidade_io.drawer
 
+import android.util.Log
 import com.moon.kstability.Axes
 import com.moon.kstability.Beam
 import com.moon.kstability.Diagrams
@@ -31,14 +32,11 @@ data class StructureProperties(
 ) {
     val maxSize: Float = structure.nodes.maxOf { it.pos.x } - structure.nodes.minOf { it.pos.x }
 
-    val meanPoint: Vector =
-        structure.nodes.map{ it.pos }.reduce { acc: Vector, next: Vector ->  acc + next} /
-                structure.nodes.size
+    val meanPoint: Vector = structure.getMiddlePoint()
 
     val maxLoad: Float = getMaxLoad(structure).takeIf { it != 0f } ?: 1f
 
-    val stableCopy = structure.getRotatedCopy(0f)
-        .also { Stabilization.stabilize(it) }  // this actually creates a deep copy
+    val stableCopy = try {Stabilization.getStabilized(structure) } catch (e: IllegalArgumentException) {structure}  // todo: handle exception
 
     val diagrams = mutableMapOf<Beam, Pair<Axes, List<Polynomial>>>().apply {
         structure.getBeams().map {
@@ -61,6 +59,17 @@ data class StructureProperties(
         return@map maxOf(axis.max(), axis.min().absoluteValue)
     }.max().takeIf { it != 0f } ?: 1f
     else 1f
+
+    init {
+        Log.v("Structure Data",
+            "Structure: ${structure.name}\nLoads:\n" +
+                    structure.getPointLoads().map { it.toString() + "\n" }
+        )
+        Log.v("Structure Data",
+            "Stable Structure: ${stableCopy.name}\nLoads:\n" +
+                    stableCopy.getPointLoads().map { it.toString() + "\n" }
+        )
+    }
 
     private fun getMaxLoad(structure: Structure): Float =
         (structure.getPointLoads().map { it.vector } +

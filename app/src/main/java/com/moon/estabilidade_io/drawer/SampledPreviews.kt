@@ -15,6 +15,7 @@ import com.moon.kstability.PointLoad
 import com.moon.kstability.Structure
 import com.moon.kstability.Support
 import com.moon.kstability.Vector
+import kotlin.math.sqrt
 
 val sampleA = Structure("Basic Sample A", mutableListOf(
     Node("A", Vector(0,0)).apply {
@@ -43,13 +44,13 @@ fun StructureSampleAPreview() {
 }
 
 val sampleB = Structure("Basic Sample B", mutableListOf(
-    Node("A", Vector(0,0)).apply {
-        Support(this, Support.Gender.SECOND, (Vector.Consts.VERTICAL -Vector.Consts.HORIZONTAL)/2)
+    Node("C", Vector(0,0)).apply {
+        Support(this, Support.Gender.SECOND, Vector.Consts.VERTICAL)
     },
     Node("B", Vector(1, 0)).apply {
         PointLoad(this, Vector(0,-10))
     },
-    Node("C", Vector(2,0)).apply {
+    Node("A", Vector(2,0)).apply {
         Support(this, Support.Gender.FIRST, Vector.Consts.VERTICAL)
     }
 )).also {
@@ -97,9 +98,40 @@ val trussSample = Structure("Truss sample", mutableListOf(
 fun StructureSampleCPreview() {
     MainCanvas(
         Modifier
-            .size(LocalConfiguration.current.screenWidthDp.dp/2)
+            .size(LocalConfiguration.current.screenWidthDp.dp / 2)
             .background(Color.LightGray),
         trussSample,
         DiagramType.NONE
     )
+}
+
+val trigCircleSample = Structure("Trig Circle Sample", mutableListOf(
+    Node("Center", Vector(0,0)).also {
+        val a = sqrt(3f)/2 * 30
+        val b = sqrt(2f)/2 * 30
+        val c = sqrt(1f)/2 * 30
+        PointLoad(it, Vector(50,0))
+        PointLoad(it, Vector(a,c))
+        PointLoad(it, Vector(b,b))
+        PointLoad(it, Vector(c,a))
+        PointLoad(it, Vector(0,50))
+        PointLoad(it, Vector(-a,c))
+        PointLoad(it, Vector(-b,b))
+        PointLoad(it, Vector(-c,a))
+        PointLoad(it, Vector(-40,0))
+        PointLoad(it, Vector(-a,-c))
+        PointLoad(it, Vector(-b,-b))
+        PointLoad(it, Vector(-c,-a))
+        PointLoad(it, Vector(0,-40))
+        PointLoad(it, Vector(a,-c))
+        PointLoad(it, Vector(b,-b))
+        PointLoad(it, Vector(c,-a))
+    },
+    Node("A", Vector(1,0))
+)).also { Beam(it.nodes.first(), it.nodes.last()) }
+
+@Preview
+@Composable
+fun TrigCircleSamplePreview() {
+    MainCanvas(Modifier.fillMaxSize().background(Color.LightGray), trigCircleSample, DiagramType.REACTIONS)
 }
