@@ -297,10 +297,10 @@ fun DrawScope.chart(
 
 object Directions {
     val C = Offset(0f, 0f)
-//    val R = Offset(1f, 0f)
+    val R = Offset(1f, 0f)
     val L = Offset(-1f, 0f)
     val T = Offset(0f, -1f)
-    val B = Offset(0f, 1f)
+//    val B = Offset(0f, 1f)
 }
 
 

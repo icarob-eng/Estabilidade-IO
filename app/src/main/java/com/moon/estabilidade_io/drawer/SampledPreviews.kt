@@ -39,7 +39,7 @@ fun StructureSampleAPreview() {
             .fillMaxSize()
             .background(Color.LightGray),
         sampleA,
-        DiagramType.SHEAR
+        DiagramType.MOMENT
     )
 }
 
@@ -54,7 +54,8 @@ val sampleB = Structure("Basic Sample B", mutableListOf(
         Support(this, Support.Gender.FIRST, Vector.Consts.VERTICAL)
     }
 )).also {
-    Beam(it.nodes.first(), it.nodes.last())
+    Beam(it.nodes.first(), it.nodes[1])
+    Beam(it.nodes[1], it.nodes.last())
 }
 
 @Preview

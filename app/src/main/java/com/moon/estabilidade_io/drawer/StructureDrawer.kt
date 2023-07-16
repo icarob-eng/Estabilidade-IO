@@ -150,13 +150,15 @@ fun DrawScope.drawStructure(
             yScale
         )
         if (loadLabels)
-            drawLabel(
-                (entry.key.node1.toOffset(b) + entry.key.node2.toOffset(b))/2f,
-                entry.value.second.first().toString(), // todo: draw each label
-                textMeasurer,
-                Directions.B,
-                ss
-            )
+            for (n in 0 until  structure.nodes.size) {
+                drawLabel(
+                    structure.nodes[n].toOffset(b),
+                    entry.value.second[n].toString(),
+                    textMeasurer,
+                    Directions.T * 1.5f + Directions.R,
+                    ss
+                )
+            }
     }
 }
 
