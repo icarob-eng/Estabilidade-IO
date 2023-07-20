@@ -1,7 +1,6 @@
 package com.moon.estabilidade_io.drawer
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
@@ -36,50 +35,47 @@ import kotlin.math.sqrt
 fun MainCanvas(modifier: Modifier, structure: Structure, diagramType: DiagramType) {
     val properties = StructureProperties(structure, diagramType)
     val textMeasurer = rememberTextMeasurer()
-    var framedScale = 2f
-    var undefinedFrame = true  // tells if the framedScale still default
 
+    var reFrameScale = 2f  // arbitrary default
+    var undefinedFrame = true  // tells if the framedScale still default
     // gesture handling:
-    var scaleValue by remember { mutableStateOf(framedScale) }
+    var scaleValue by remember { mutableStateOf(reFrameScale) }
 //    var rotationValue by remember { mutableStateOf(0f) }
     var offsetValue by remember { mutableStateOf(Offset.Zero) }
-    val transformableState = rememberTransformableState { zoomChange, _, _ -> // offsetChange, rotationChange ->
-        // update only scale gesture from dual touch input
-        // (translation is updated from single touch input)
+
+    val transformableState = rememberTransformableState { zoomChange, offsetChange, _ -> // rotationChange ->
         scaleValue *= zoomChange
         scaleValue = scaleValue.coerceIn(0.75f, 25f)
 //        rotationValue += rotationChange
-//        offsetValue += offsetChange
+        offsetValue += offsetChange / scaleValue
     }
+
     Canvas (modifier =
     modifier
         .pointerInput(Unit) {
-            detectDragGestures { change, dragAmount ->
-                change.consume()
-                offsetValue += dragAmount / scaleValue
-                offsetValue = Offset(
-                    offsetValue.x.coerceIn(
-                        -size.width / sqrt(2 * scaleValue), size.width / sqrt(2 * scaleValue)
-                    ),
-                    offsetValue.y.coerceIn(
-                        -size.height / sqrt(2 * scaleValue), size.height / sqrt(2 * scaleValue)
-                    )
-                )
-            } // detect translation from single touch input
-        }
-        .pointerInput(Unit) {
             detectTapGestures(onDoubleTap = {
+                // re-frames the structure
                 offsetValue = Offset(0f, 0f)
-                scaleValue = framedScale
+                scaleValue = reFrameScale
             })
         }
         .transformable(transformableState)  // detects rotation and dual touch, etc
     ) {
-        framedScale = size.width / (properties.maxSize * Preferences.baseScale.toPx()) * 3/5
+        reFrameScale = size.width / (properties.maxSize * Preferences.baseScale.toPx()) * 3/5
         if (undefinedFrame) {
-            scaleValue = framedScale
+            scaleValue = reFrameScale
             undefinedFrame = false
         }
+
+        offsetValue = Offset(
+            offsetValue.x.coerceIn(
+                -size.width / sqrt(2 * scaleValue), size.width / sqrt(2 * scaleValue)
+            ),
+            offsetValue.y.coerceIn(
+                -size.height / sqrt(2 * scaleValue), size.height / sqrt(2 * scaleValue)
+            )
+        )
+
         scale(scaleValue) { translate (offsetValue.x, offsetValue.y) {
             drawStructure(properties, diagramType, textMeasurer)
         }}
