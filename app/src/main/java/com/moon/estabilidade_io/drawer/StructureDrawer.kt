@@ -47,7 +47,7 @@ fun DrawScope.drawStructure(
     nodeLabels: Boolean = false,
     loadLabels: Boolean = true
 ) {
-    drawTest(1f) // draw scale test
+//    drawTest(1f) // draw scale test
     val structure = sProperties.structure
     if (structure.nodes.size == 0) return
     val b = Basis(sProperties.meanPoint.toOffset(), Preferences.baseScale.toPx(), center)
