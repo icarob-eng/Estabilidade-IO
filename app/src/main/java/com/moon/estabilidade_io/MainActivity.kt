@@ -35,13 +35,15 @@ import com.moon.estabilidade_io.ui.theme.EstabilidadeIOTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            var structureState by remember {
-                mutableStateOf(sampleB.copy(name = "MainActivity Sample B"))
-            }
-            var diagramTypeState by remember { mutableStateOf(DiagramType.NONE) }
-            var structureDataState by remember { mutableStateOf(getString(R.string.default_yaml)) }
 
+        // todo: remove those samples
+        val defaultSampleA = sampleA.copy("Structure Sample")
+        val defaultSampleB = sampleB.copy("Alternative Structure Sample")
+
+        setContent {
+            val mainVM = MainViewModel()
+            mainVM.setFramedStructure(defaultSampleA)
+            val uiState by mainVM.uiState.collectAsState()
 
             val mainCanvasModifier = Modifier
                 .size(LocalConfiguration.current.smallestScreenWidthDp.dp)
@@ -50,7 +52,7 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     topBar = {
                         CenterAlignedTopAppBar(
-                            title = { Text(text = structureState.name) },
+                            title = { Text(text = uiState.framedStructure.name) },
                             modifier = Modifier.height(40.dp)
                         ) },
                     bottomBar = {
@@ -63,18 +65,16 @@ class MainActivity : ComponentActivity() {
                             Triple("DMF", R.drawable.round_rotate_90_degrees_ccw_24, DiagramType.MOMENT)
                         )
                         BottomAppBarSelector (itemContents = types, modifier = Modifier.height(50.dp))
-                        {diagramType -> diagramTypeState = diagramType }
+                        {diagramType -> mainVM.setDiagramType(diagramType) }
                                 },
                     floatingActionButton = {
                         FloatingActionButton(
                             shape = CircleShape,
                             onClick = {
-                            structureState =
-                                if (structureState ==
-                                sampleB.copy(name = "MainActivity Sample B"))
-                                    sampleA.copy(name = "MainActivity Sample")
+                                if (uiState.framedStructure == defaultSampleA)
+                                    mainVM.setFramedStructure(defaultSampleB)
                                 else
-                                    sampleB.copy(name = "MainActivity Sample B")
+                                    mainVM.setFramedStructure(defaultSampleA)
                         }) {
                             Icon(Icons.Default.PlayArrow, null)
                         }
@@ -84,17 +84,17 @@ class MainActivity : ComponentActivity() {
 
                     if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
                         Column(modifier = Modifier.padding(paddingValues)) {
-                            MainCanvas(mainCanvasModifier, structureState, diagramTypeState)
+                            MainCanvas(mainCanvasModifier, uiState.framedStructure, uiState.diagramType)
                             BottomSheetContent(
-                                structureDataState
-                            ) { structureDataState = it }
+                                mainVM.yamlValue
+                            ) { mainVM.yamlValue = it }
                         }
                     } else {
                         Row(modifier = Modifier.padding(paddingValues)) {
-                            MainCanvas(mainCanvasModifier, structureState, diagramTypeState)
+                            MainCanvas(mainCanvasModifier, uiState.framedStructure, uiState.diagramType)
                             BottomSheetContent(
-                                structureDataState
-                            ) { structureDataState = it }
+                                mainVM.yamlValue
+                            ) { mainVM.yamlValue = it }
                         }
                     }
                 }
