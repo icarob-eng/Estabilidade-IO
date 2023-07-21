@@ -58,7 +58,15 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier.height(40.dp)
                         ) },
                     bottomBar = {
-                        BottomAppBarSelector (modifier = Modifier.height(50.dp))
+                        val types = listOf(
+                            Triple("Estrutura", R.drawable.baseline_straighten_24, DiagramType.NONE),
+                            Triple("Cargas", R.drawable.baseline_download_24, DiagramType.LOADS),
+                            Triple("Reações", R.drawable.baseline_close_fullscreen_24, DiagramType.REACTIONS),
+                            Triple("DEN", R.drawable.baseline_swipe_right_alt_24, DiagramType.NORMAL),
+                            Triple("DEC", R.drawable.baseline_vertical_align_bottom_24, DiagramType.SHEAR),
+                            Triple("DMF", R.drawable.round_rotate_90_degrees_ccw_24, DiagramType.MOMENT)
+                        )
+                        BottomAppBarSelector (itemContents = types, modifier = Modifier.height(50.dp))
                         {diagramType -> diagramTypeState = diagramType }
                                 },
                     floatingActionButton = {

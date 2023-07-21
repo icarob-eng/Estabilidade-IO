@@ -81,8 +81,9 @@ fun DrawScope.drawStructure(
     }
     // --- nodes ---
     structure.nodes.map {
+        if (it.beams.isEmpty()) return@map
         drawNode(it.toOffset(b), s)
-        if (nodeLabels && it.beams.isNotEmpty())
+        if (nodeLabels)
             drawLabel(it.toOffset(b), it.name, textMeasurer, Directions.L, ss)
     }
 

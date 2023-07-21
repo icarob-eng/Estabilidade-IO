@@ -9,12 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -24,6 +18,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -34,24 +29,20 @@ import com.moon.estabilidade_io.drawer.DiagramType
 
 
 @Composable
-fun BottomAppBarSelector(modifier: Modifier = Modifier, onItemClick: (DiagramType) -> Unit) {
-    val types = listOf(
-        Triple("Estrutura", Icons.Outlined.Close, DiagramType.NONE),
-        Triple("Cargas", Icons.Outlined.KeyboardArrowDown, DiagramType.LOADS),
-        Triple("Reações", Icons.Default.Refresh, DiagramType.REACTIONS),
-        Triple("DEN", Icons.Default.KeyboardArrowLeft, DiagramType.NORMAL),
-        Triple("DEC", Icons.Default.ArrowDropDown, DiagramType.SHEAR),
-        Triple("DMF", Icons.Default.Refresh, DiagramType.MOMENT)
-    )
+fun BottomAppBarSelector(
+    itemContents: List<Triple<String, Int, DiagramType>>,
+    modifier: Modifier = Modifier,
+    onItemClick: (DiagramType) -> Unit
+) {
     BottomAppBar(modifier) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-            types.forEach {(label, icon, type) ->
+            itemContents.forEach {(label, iconId, type) ->
                 Button(
                     contentPadding = PaddingValues(0.dp),
                     shape = RoundedCornerShape(5.dp),
                     onClick = { onItemClick(type) }) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(icon, label)
+                        Icon(painter = painterResource(id = iconId), label)
                         Text(text = label, textAlign = TextAlign.Center, fontSize = 10.sp)
                     }
                 }
