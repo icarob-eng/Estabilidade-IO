@@ -6,12 +6,12 @@ import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -22,7 +22,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import com.moon.estabilidade_io.drawer.DiagramType
@@ -43,15 +42,12 @@ class MainActivity : ComponentActivity() {
             var diagramTypeState by remember { mutableStateOf(DiagramType.NONE) }
             var structureDataState by remember { mutableStateOf(getString(R.string.default_yaml)) }
 
-//            val bgColor = Color.LightGray
 
             val mainCanvasModifier = Modifier
                 .size(LocalConfiguration.current.smallestScreenWidthDp.dp)
-//                .background(bgColor)
 
             EstabilidadeIOTheme {
                 Scaffold(
-//                    modifier = Modifier.background(bgColor),
                     topBar = {
                         CenterAlignedTopAppBar(
                             title = { Text(text = structureState.name) },
@@ -70,7 +66,9 @@ class MainActivity : ComponentActivity() {
                         {diagramType -> diagramTypeState = diagramType }
                                 },
                     floatingActionButton = {
-                        FloatingActionButton(onClick = {
+                        FloatingActionButton(
+                            shape = CircleShape,
+                            onClick = {
                             structureState =
                                 if (structureState ==
                                 sampleB.copy(name = "MainActivity Sample B"))

@@ -12,9 +12,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -83,7 +85,7 @@ fun BottomSheetContent(value: String, onValueChange: (String) -> Unit) {
             YamlTextField(
                 value = value,
                 onValueChange = onValueChange,
-                modifier = Modifier.fillMaxSize())
+                modifier = Modifier.fillMaxWidth())
         }
     }
 }
@@ -109,7 +111,10 @@ fun YamlTextField(value: String, onValueChange: (String) -> Unit, modifier: Modi
     var lineTops by remember { mutableStateOf(emptyArray<Float>()) }
     val density = LocalDensity.current
 
-    Row (Modifier.background(Color.DarkGray)){  // todo: external bgcolor
+    Row (
+        Modifier
+            .background(Color.DarkGray)
+            .verticalScroll(rememberScrollState())){  // todo: external bgcolor
         if (lineTops.isNotEmpty()) {
             Box(modifier = Modifier.padding(horizontal = 4.dp)) {
                 lineTops.forEachIndexed { index, top ->
@@ -135,7 +140,6 @@ fun YamlTextField(value: String, onValueChange: (String) -> Unit, modifier: Modi
                 autoCorrect = false,
                 keyboardType = KeyboardType.Ascii
             ),
-//            keyboardActions = KeyboardActions(), // todo: auto indentation
             onTextLayout = { result ->
                 lineTops = Array(result.lineCount) { result.getLineTop(it) }
             }
