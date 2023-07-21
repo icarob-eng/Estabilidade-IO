@@ -41,17 +41,17 @@ class MainActivity : ComponentActivity() {
                 mutableStateOf(sampleB.copy(name = "MainActivity Sample B"))
             }
             var diagramTypeState by remember { mutableStateOf(DiagramType.NONE) }
-            var structureDataState by remember { mutableStateOf("") }
+            var structureDataState by remember { mutableStateOf(getString(R.string.default_yaml)) }
 
-            val bgColor = Color.LightGray
+//            val bgColor = Color.LightGray
 
             val mainCanvasModifier = Modifier
                 .size(LocalConfiguration.current.smallestScreenWidthDp.dp)
-                .background(bgColor)
+//                .background(bgColor)
 
             EstabilidadeIOTheme {
                 Scaffold(
-                    modifier = Modifier.background(bgColor),
+//                    modifier = Modifier.background(bgColor),
                     topBar = {
                         CenterAlignedTopAppBar(
                             title = { Text(text = structureState.name) },

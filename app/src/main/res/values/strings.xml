@@ -1,3 +1,27 @@
 <resources>
-    <string name="app_name">Estabilidade-IO</string>
+    <string name="app_name" translatable="false">Estabilidade-IO</string>
+    <string name="default_yaml" translatable="false">
+   projeto: Nome\n
+   nos:\n
+      A: [0, 0]\n
+      B: [1, 0]\n
+      C: [2, 0]\n
+\n
+   apoios:\n
+      A:\n
+         genero: 1\n
+         direcao: vertical\n
+      C:\n
+         genero: 2\n
+         direcao: vertical\n
+\n
+   barras:\n
+      - [A, C]\n
+\n
+   cargas:\n
+      F1:\n
+         no: A\n
+         direcao: vertical\n
+\n
+    </string>
 </resources>
