@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -78,25 +78,25 @@ class MainActivity : ComponentActivity() {
                                 else
                                     sampleB.copy(name = "MainActivity Sample B")
                         }) {
-                            Icon(Icons.Default.Refresh, null)
+                            Icon(Icons.Default.PlayArrow, null)
                         }
                     }
                 ) {paddingValues ->
+
+
                     if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
                         Column(modifier = Modifier.padding(paddingValues)) {
                             MainCanvas(mainCanvasModifier, structureState, diagramTypeState)
                             BottomSheetContent(
-                                structureDataState,
-                                dataValueChange = {structureDataState = it}
-                            )
+                                structureDataState
+                            ) { structureDataState = it }
                         }
                     } else {
                         Row(modifier = Modifier.padding(paddingValues)) {
                             MainCanvas(mainCanvasModifier, structureState, diagramTypeState)
                             BottomSheetContent(
-                                structureDataState,
-                                dataValueChange = {structureDataState = it}
-                            )
+                                structureDataState
+                            ) { structureDataState = it }
                         }
                     }
                 }
