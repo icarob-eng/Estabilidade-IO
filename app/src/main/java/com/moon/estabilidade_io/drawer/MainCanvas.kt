@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,6 +34,10 @@ import kotlin.math.sqrt
 @OptIn(ExperimentalTextApi::class)
 @Composable
 fun MainCanvas(modifier: Modifier, structure: Structure, diagramType: DiagramType) {
+    if (structure.nodes.size == 0) {
+        Box(modifier)
+        return
+    }
     val properties = StructureProperties(structure, diagramType)
     val textMeasurer = rememberTextMeasurer()
 

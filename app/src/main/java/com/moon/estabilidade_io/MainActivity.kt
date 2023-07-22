@@ -24,6 +24,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.moon.estabilidade_io.drawer.DiagramType
 import com.moon.estabilidade_io.drawer.MainCanvas
 import com.moon.estabilidade_io.drawer.sampleA
@@ -41,8 +42,7 @@ class MainActivity : ComponentActivity() {
         val defaultSampleB = sampleB.copy("Alternative Structure Sample")
 
         setContent {
-            val mainVM = MainViewModel()
-            mainVM.setFramedStructure(defaultSampleA)
+            val mainVM: MainViewModel = viewModel()
             val uiState by mainVM.uiState.collectAsState()
 
             val mainCanvasModifier = Modifier

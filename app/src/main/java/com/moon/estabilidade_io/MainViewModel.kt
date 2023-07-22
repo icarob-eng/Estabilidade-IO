@@ -48,5 +48,5 @@ const val defaultSampleStructureYaml = """
       F1:
          no: A
          direcao: vertical
-    
+         modulo: -10
 """
