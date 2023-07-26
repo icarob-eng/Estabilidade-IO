@@ -5,14 +5,16 @@ import com.moon.kstability.Axes
 import com.moon.kstability.Beam
 import com.moon.kstability.Diagrams
 import com.moon.kstability.Polynomial
+import com.moon.kstability.Stabilization.isStable
 import com.moon.kstability.Stabilization.stabilize
 import com.moon.kstability.Structure
 import com.moon.kstability.Vector
+import kotlin.jvm.Throws
 import kotlin.math.absoluteValue
 
 /**
  * Class responsible for pre-calculating complex `Structure` properties, like the actual size
- * or the meanPoint.
+ * or the meanPoint. It's useful for removing this responsibility from the drawer.
  *
  * @property structure Base structure for all calculations, which is stabilized.
  * @property diagramType Selects which diagram data will be generated.
@@ -28,14 +30,16 @@ import kotlin.math.absoluteValue
  *
  * @throws IllegalArgumentException When the structure can't be stabilized.
  */
-data class StructureProperties(
+data class DiagramData
+@Throws(IllegalArgumentException::class) constructor(
     val structure: Structure,
     val diagramType: DiagramType
 ) {
     val unstableStructure: Structure = structure.deepCopy()  // fixme: this is not a solution...
 
     init {
-        structure.stabilize()  // todo: remove this to the front-end
+        if (!isStable(structure))  // fixme: this is also not a ideal solution...
+            structure.stabilize()
 
         Log.v("Structure_Data",
             "Structure: ${structure.name}\nLoads:\n" +

@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.moon.estabilidade_io.drawer.DiagramData
 import com.moon.estabilidade_io.drawer.DiagramType
 import com.moon.kstability.Parsing
 import com.moon.kstability.Structure
@@ -18,27 +19,33 @@ class MainViewModel : ViewModel() {
 
     var yamlValue by mutableStateOf(defaultSampleStructureYaml)
 
-    fun setDiagramType(diagramType: DiagramType) = _uiState
-        .update { it.copy(diagramType = diagramType) }
+    fun setDiagramType(diagramType: DiagramType) {
+        if (_uiState.value.diagramData != null ) _uiState
+            .update { it.copy(diagramData = DiagramData(it.diagramData!!.structure, diagramType)) }
+    }
 
     fun parseYamlValue() = _uiState
-        .update { it.copy(
-            framedStructure = Parsing.parseYamlString(yamlValue),
-            yamlHash = yamlValue.hashCode())
+        .update { it.copy(diagramData = DiagramData (
+            structure = Parsing.parseYamlString(yamlValue),
+            diagramType = it.diagramData?.diagramType?: DiagramType.NONE
+        ),
+            yamlHash = yamlValue.hashCode()
+        )
         }
 
-    fun updateYamlValue() {
-        yamlValue = Parsing.serializeStructureToYaml(_uiState.value.framedStructure)
+    fun restoreYamlValue() {
+        yamlValue = Parsing.serializeStructureToYaml(
+            _uiState.value.diagramData?.structure?: Structure("Nenhuma estrutura")
+        )
     }
 }
 
 data class MainActivityState(
-    val framedStructure: Structure = Structure("Nenhuma estrutura"),  // todo: open last structure
-    val diagramType: DiagramType = DiagramType.NONE,
+    val diagramData: DiagramData? = null,
     val yamlHash: Int = 0  // force to update state hash
 )
 
-const val defaultSampleStructureYaml = """estrutura: Nome
+const val defaultSampleStructureYaml = """estrutura: Estrutura exemplo
 nós:
   A: [0, 0]
   B: [1, 0]

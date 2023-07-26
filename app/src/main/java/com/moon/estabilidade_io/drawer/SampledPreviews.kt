@@ -38,8 +38,10 @@ fun StructureSampleAPreview() {
         Modifier
             .fillMaxSize()
             .background(Color.LightGray),
-        sampleA,
-        DiagramType.MOMENT
+        DiagramData(
+            sampleA,
+            DiagramType.MOMENT
+        )
     )
 }
 
@@ -65,8 +67,10 @@ fun StructureSampleBPreview() {
         Modifier
             .fillMaxSize()
             .background(Color.LightGray),
-        sampleB,
-        DiagramType.SHEAR
+        DiagramData(
+            sampleB,
+            DiagramType.SHEAR
+        )
     )
 }
 
@@ -101,8 +105,10 @@ fun StructureSampleCPreview() {
         Modifier
             .size(LocalConfiguration.current.screenWidthDp.dp / 2)
             .background(Color.LightGray),
-        trussSample,
-        DiagramType.NONE
+        DiagramData(
+            trussSample,
+            DiagramType.NONE
+        )
     )
 }
 
@@ -135,5 +141,5 @@ val trigCircleSample = Structure("Trig Circle Sample", hashSetOf(
 @Preview
 @Composable
 fun TrigCircleSamplePreview() {
-    MainCanvas(Modifier.fillMaxSize().background(Color.LightGray), trigCircleSample, DiagramType.REACTIONS)
+    MainCanvas(Modifier.fillMaxSize().background(Color.LightGray), DiagramData(trigCircleSample, DiagramType.REACTIONS))
 }

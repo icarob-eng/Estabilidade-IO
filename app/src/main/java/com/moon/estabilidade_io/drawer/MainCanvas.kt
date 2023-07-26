@@ -17,32 +17,25 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.rememberTextMeasurer
-import com.moon.kstability.Structure
-import kotlin.jvm.Throws
 import kotlin.math.sqrt
-
 
 /**
  * Draw a given `Structure`, with some parameters. Also, pre-calculates some properties of the
  * structure and is responsible for gesture handling.
  *
  * @param modifier Regular composable modifier.
- * @param structure The structure that will be drawn.
- * @param diagramType Determines what will be drawn. See enum.
+ * @param diagramData
  *
- * @see DiagramType
- *
- * @throws IllegalArgumentException When the structure can't be stabilized.
+ * @see DiagramData
  */
 @OptIn(ExperimentalTextApi::class)
 @Composable
-@Throws(IllegalArgumentException::class)
-fun MainCanvas(modifier: Modifier, structure: Structure, diagramType: DiagramType) {
-    if (structure.nodes.size == 0) {
+fun MainCanvas(modifier: Modifier, diagramData: DiagramData?) {
+    if (diagramData == null) {
         Box(modifier)
         return
     }
-    val properties = StructureProperties(structure, diagramType)
+
     val textMeasurer = rememberTextMeasurer()
 
     var reFrameScale = 2f  // arbitrary default
@@ -70,7 +63,7 @@ fun MainCanvas(modifier: Modifier, structure: Structure, diagramType: DiagramTyp
         }
         .transformable(transformableState)  // detects rotation and dual touch, etc
     ) {
-        reFrameScale = size.width / (properties.maxSize * Preferences.baseScale.toPx()) * 3/5
+        reFrameScale = size.width / (diagramData.maxSize * Preferences.baseScale.toPx()) * 3/5
         if (undefinedFrame) {
             scaleValue = reFrameScale
             undefinedFrame = false
@@ -86,8 +79,23 @@ fun MainCanvas(modifier: Modifier, structure: Structure, diagramType: DiagramTyp
         )
 
         scale(scaleValue) { translate (offsetValue.x, offsetValue.y) {
-            drawStructure(properties, diagramType, textMeasurer)
+            drawStructure(diagramData, textMeasurer)
         }}
         drawScaleLabel(textMeasurer, scaleValue)  // remains in the same place
     }
+}
+enum class DiagramType {
+    /**
+     * Tells `MainCanvas` what to draw along with the given structure.
+     * @property NONE Draw only the structure
+     * @property LOADS Draw the structure and the applied loads
+     * @property REACTIONS Draw the structure, applied loads, and reaction forces
+     * @property NORMAL Draw the structure, reaction forces and Normal Stress Diagram
+     * @property SHEAR Draw the structure, reaction forces and Shear Stress Diagram
+     * @property MOMENT Draw the structure, reaction forces and Bending Moment Diagram
+     *
+     * @see MainCanvas
+     * @see drawStructure
+     */
+    NONE, LOADS, REACTIONS, NORMAL, SHEAR, MOMENT
 }

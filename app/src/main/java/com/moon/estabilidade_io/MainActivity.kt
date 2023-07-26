@@ -44,7 +44,9 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     topBar = {
                         CenterAlignedTopAppBar(
-                            title = { Text(text = uiState.framedStructure.name) },
+                            title = { Text(text =
+                            uiState.diagramData?.structure?.name?: "Nenhuma estrutura selecionada"
+                            ) },
                             modifier = Modifier.height(40.dp)
                         ) },
                     bottomBar = {
@@ -74,16 +76,18 @@ class MainActivity : ComponentActivity() {
                     val mainCanvasModifier = Modifier
                         .size(LocalConfiguration.current.smallestScreenWidthDp.dp)
 
+                    val diagramData = uiState.diagramData
+
                     if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
                         Column(modifier = Modifier.padding(paddingValues)) {
-                            MainCanvas(mainCanvasModifier, uiState.framedStructure, uiState.diagramType)
+                            MainCanvas(mainCanvasModifier, diagramData)
                             BottomSheetContent(
                                 mainVM.yamlValue
                             ) { mainVM.yamlValue = it }
                         }
                     } else {
                         Row(modifier = Modifier.padding(paddingValues)) {
-                            MainCanvas(mainCanvasModifier, uiState.framedStructure, uiState.diagramType)
+                            MainCanvas(mainCanvasModifier, diagramData)
                             BottomSheetContent(
                                 mainVM.yamlValue
                             ) { mainVM.yamlValue = it }

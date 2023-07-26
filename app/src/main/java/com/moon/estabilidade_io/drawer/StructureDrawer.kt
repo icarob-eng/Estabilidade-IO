@@ -12,47 +12,30 @@ import kotlin.math.PI
 import kotlin.math.atan
 import kotlin.math.sign
 
-enum class DiagramType {
-    /**
-     * Tells `MainCanvas` what to draw along with the given structure.
-     * @property NONE Draw only the structure
-     * @property LOADS Draw the structure and the applied loads
-     * @property REACTIONS Draw the structure, applied loads, and reaction forces
-     * @property NORMAL Draw the structure, reaction forces and Normal Stress Diagram
-     * @property SHEAR Draw the structure, reaction forces and Shear Stress Diagram
-     * @property MOMENT Draw the structure, reaction forces and Bending Moment Diagram
-     *
-     * @see MainCanvas
-     * @see drawStructure
-     */
-    NONE, LOADS, REACTIONS, NORMAL, SHEAR, MOMENT
-}
-
 /**
- * Draws an entire `Structure`, with preloaded `StructureProperties`.
+ * Draws an entire `Structure`, with preloaded `DiagramData`.
  *
- * @param sProperties Where most arguments are passed, including the structure and its properties.
- * @param diagramType Selects what will be drawn. See enum.
+ * @param data Contains all data to be drawn, including the structure and its properties.
  * @param textMeasurer Necessary for printing labels.
  * @param nodeLabels Determines if each node name will be printed.
  * @param loadLabels Determines if load values and polynomials will be printed.
  *
  * @see DiagramType
+ * @see DiagramData
  */
 @OptIn(ExperimentalTextApi::class)
 fun DrawScope.drawStructure(
-    sProperties: StructureProperties,
-    diagramType: DiagramType,
+    data: DiagramData,
     textMeasurer: TextMeasurer,
     nodeLabels: Boolean = false,
     loadLabels: Boolean = true
 ) {
 //    drawTest(1f) // draw scale test
-    val structure = sProperties.structure
+    val structure = data.structure
     if (structure.nodes.size == 0) return
-    val b = Basis(sProperties.meanPoint.toOffset(), Preferences.baseScale.toPx(), center)
+    val b = Basis(data.meanPoint.toOffset(), Preferences.baseScale.toPx(), center)
     // independent of drawScale
-    val s = Preferences.baseScale.toPx() * sProperties.maxSize / 2f
+    val s = Preferences.baseScale.toPx() * data.maxSize / 2f
     val ss = s * Preferences.supportSide
 
     /*
@@ -87,14 +70,14 @@ fun DrawScope.drawStructure(
             drawLabel(it.toOffset(b), it.name, textMeasurer, Directions.L, ss)
     }
 
-    if (diagramType == DiagramType.NONE) return
+    if (data.diagramType == DiagramType.NONE) return
     // --- loads and reactions ---
 
     // here we apply the methods to a copy, so we can compare if the force is or not a reaction
-    val loadScale = Preferences.supportSide * s / sProperties.maxLoad
+    val loadScale = Preferences.supportSide * s / data.maxLoad
 
     structure.getPointLoads().map {
-        if (it.isReaction && diagramType != DiagramType.LOADS || !it.isReaction) {
+        if (it.isReaction && data.diagramType != DiagramType.LOADS || !it.isReaction) {
             drawPointLoad(it.node.toOffset(b), it.vector, it.isReaction, loadScale)
             if (loadLabels)
                 drawLabel(
@@ -104,8 +87,8 @@ fun DrawScope.drawStructure(
     }
 
     structure.nodes.map {
-        val moment = if (diagramType == DiagramType.LOADS)
-            sProperties.unstableStructure[it.name]!!.momentum // fixme: this is not a real solution...
+        val moment = if (data.diagramType == DiagramType.LOADS)
+            data.unstableStructure[it.name]!!.momentum // fixme: this is not a real solution...
         else it.momentum
 
         if (moment != 0f) {
@@ -133,15 +116,15 @@ fun DrawScope.drawStructure(
     }
 
     // --- charts ---
-    val color = when (diagramType) {
+    val color = when (data.diagramType) {
         DiagramType.NORMAL -> Preferences.normalDiagramColor
         DiagramType.SHEAR -> Preferences.shearDiagramColor
         DiagramType.MOMENT -> Preferences.momentDiagramColor
         else -> return
     }
-    val yScale = s / sProperties.absYMax
+    val yScale = s / data.absYMax
 
-    sProperties.diagrams.map {entry ->
+    data.diagrams.map { entry ->
         chart(
             entry.value.first,
             color,
