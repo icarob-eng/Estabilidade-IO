@@ -18,6 +18,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.rememberTextMeasurer
 import com.moon.kstability.Structure
+import kotlin.jvm.Throws
 import kotlin.math.sqrt
 
 
@@ -30,9 +31,12 @@ import kotlin.math.sqrt
  * @param diagramType Determines what will be drawn. See enum.
  *
  * @see DiagramType
+ *
+ * @throws IllegalArgumentException When the structure can't be stabilized.
  */
 @OptIn(ExperimentalTextApi::class)
 @Composable
+@Throws(IllegalArgumentException::class)
 fun MainCanvas(modifier: Modifier, structure: Structure, diagramType: DiagramType) {
     if (structure.nodes.size == 0) {
         Box(modifier)

@@ -91,33 +91,32 @@ fun DrawScope.drawStructure(
     // --- loads and reactions ---
 
     // here we apply the methods to a copy, so we can compare if the force is or not a reaction
-    val loadScale = Preferences.supportSide * s /
-            if(diagramType != DiagramType.LOADS) sProperties.sMaxLoad else sProperties.maxLoad
+    val loadScale = Preferences.supportSide * s / sProperties.maxLoad
 
-    sProperties.stableCopy.getPointLoads().map {
-        val isReaction = it !in structure.getPointLoads()
-        if (isReaction && diagramType != DiagramType.LOADS || !isReaction) {
-            drawPointLoad(it.node.toOffset(b), it.vector, isReaction, loadScale)
+    structure.getPointLoads().map {
+        if (it.isReaction && diagramType != DiagramType.LOADS || !it.isReaction) {
+            drawPointLoad(it.node.toOffset(b), it.vector, it.isReaction, loadScale)
             if (loadLabels)
                 drawLabel(
                     it.node.toOffset(b), it.vector.length().u("kN"), textMeasurer, Directions.T, ss
                 )
         }
     }
-    sProperties.stableCopy.nodes.map {
-        val eqvNode = structure.nodes.find { node -> it.name == node.name }!!
-        var resultMoment = eqvNode.momentum
-        var isReaction = false
 
-        if (diagramType != DiagramType.LOADS) {
-            resultMoment = it.momentum
-            isReaction = eqvNode.momentum != it.momentum
-        }
+    structure.nodes.map {
+        val moment = if (diagramType == DiagramType.LOADS)
+            sProperties.unstableStructure[it.name]!!.momentum // fixme: this is not a real solution...
+        else it.momentum
 
-        if (resultMoment != 0f) {
-            drawMoment(it.toOffset(b), resultMoment < 0f, isReaction, ss)
+        if (moment != 0f) {
+            drawMoment(
+                appliedNodeOffset = it.toOffset(b),
+                clockWise = moment < 0f,
+                isReaction = (moment == it.momentum) && it.isMomentReaction,
+                s = ss
+            )
             if (loadLabels)
-                drawLabel(it.toOffset(b), resultMoment.u("kNm"), textMeasurer, Directions.C, ss)
+                drawLabel(it.toOffset(b), moment.u("kNm"), textMeasurer, Directions.C, ss)
         }
     }
 
@@ -151,9 +150,9 @@ fun DrawScope.drawStructure(
             yScale
         )
         if (loadLabels)
-            for (n in 0 until  structure.nodes.size) {
+            structure.nodes.sortedBy { it.pos.x }.mapIndexed { n, node ->
                 drawLabel(
-                    structure.nodes.sortedBy { it.pos.x }[n].toOffset(b),
+                    node.toOffset(b),
                     entry.value.second[n].toString(),
                     textMeasurer,
                     Directions.T * 1.5f + Directions.R,
