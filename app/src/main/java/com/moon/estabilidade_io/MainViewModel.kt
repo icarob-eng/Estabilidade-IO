@@ -1,11 +1,14 @@
 package com.moon.estabilidade_io
 
+import android.util.Log
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.moon.estabilidade_io.drawer.DiagramData
 import com.moon.estabilidade_io.drawer.DiagramType
+import com.moon.estabilidade_io.ui.components.WrongStructureDialog
 import com.moon.kstability.Parsing
 import com.moon.kstability.Structure
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,25 +21,35 @@ class MainViewModel : ViewModel() {
     val uiState = _uiState.asStateFlow()
 
     var yamlValue by mutableStateOf(defaultSampleStructureYaml)
+    var exception: Exception? by mutableStateOf(null)
 
     fun setDiagramType(diagramType: DiagramType) {
         if (_uiState.value.diagramData != null ) _uiState
             .update { it.copy(diagramData = DiagramData(it.diagramData!!.structure, diagramType)) }
+        // todo: make this safe
     }
 
-    fun parseYamlValue() = _uiState
-        .update { it.copy(diagramData = DiagramData (
-            structure = Parsing.parseYamlString(yamlValue),
-            diagramType = it.diagramData?.diagramType?: DiagramType.NONE
-        ),
-            yamlHash = yamlValue.hashCode()
-        )
+    fun parseYamlValue() {
+        try {
+            _uiState.update {
+                it.copy(
+                    diagramData = DiagramData(
+                        structure = Parsing.parseYamlString(yamlValue),
+                        diagramType = it.diagramData?.diagramType ?: DiagramType.NONE
+                    ),
+                    yamlHash = yamlValue.hashCode()
+                )
+            }
+        } catch (e: Exception) {
+            Log.e("DiagramData_exception", exception.toString())
+            exception = e
         }
+    }
 
     fun restoreYamlValue() {
         yamlValue = Parsing.serializeStructureToYaml(
             _uiState.value.diagramData?.structure?: Structure("Nenhuma estrutura")
-        )
+        ) // fixme: ain't restoring
     }
 }
 
@@ -44,6 +57,20 @@ data class MainActivityState(
     val diagramData: DiagramData? = null,
     val yamlHash: Int = 0  // force to update state hash
 )
+
+@Composable
+fun WrongStructureDialogLauncher(vm: MainViewModel) {
+    if (vm.exception != null) {
+        WrongStructureDialog(
+            errorMessage = vm.exception!!.message ?: "Mensagem não disponível. Consulte os logs.",
+            onCancel = {vm.exception = null},
+            onRestore = {
+                vm.restoreYamlValue()
+                vm.exception = null
+            }
+        )
+    }
+}
 
 const val defaultSampleStructureYaml = """estrutura: Estrutura exemplo
 nós:

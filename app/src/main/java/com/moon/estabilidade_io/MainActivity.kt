@@ -41,6 +41,8 @@ class MainActivity : ComponentActivity() {
             val uiState by mainVM.uiState.collectAsState()
 
             EstabilidadeIOTheme {
+
+                WrongStructureDialogLauncher(vm = mainVM)
                 Scaffold(
                     topBar = {
                         CenterAlignedTopAppBar(
