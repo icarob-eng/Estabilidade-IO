@@ -5,7 +5,7 @@ import com.moon.kstability.Axes
 import com.moon.kstability.Beam
 import com.moon.kstability.Diagrams
 import com.moon.kstability.Polynomial
-import com.moon.kstability.Stabilization
+import com.moon.kstability.Stabilization.stabilize
 import com.moon.kstability.Structure
 import com.moon.kstability.Vector
 import kotlin.math.absoluteValue
@@ -30,13 +30,14 @@ data class StructureProperties(
     val structure: Structure,
     val diagramType: DiagramType
 ) {
+    // todo: rewrite all of this
     val maxSize: Float = structure.nodes.maxOf { it.pos.x } - structure.nodes.minOf { it.pos.x }
 
     val meanPoint: Vector = structure.getMiddlePoint()
 
     val maxLoad: Float = getMaxLoad(structure).takeIf { it != 0f } ?: 1f
 
-    val stableCopy = try {Stabilization.getStabilized(structure) } catch (e: IllegalArgumentException) {structure}  // todo: handle exception
+    val stableCopy = try {structure.deepCopy().also { it.stabilize() } } catch (e: IllegalArgumentException) {structure}  // todo: handle exception
 
     val diagrams = mutableMapOf<Beam, Pair<Axes, List<Polynomial>>>().apply {
         structure.getBeams().map {
@@ -61,11 +62,11 @@ data class StructureProperties(
     else 1f
 
     init {
-        Log.v("Structure Data",
+        Log.v("Structure_Data",
             "Structure: ${structure.name}\nLoads:\n" +
                     structure.getPointLoads().map { it.toString() + "\n" }
         )
-        Log.v("Structure Data",
+        Log.v("Structure_Data",
             "Stable Structure: ${stableCopy.name}\nLoads:\n" +
                     stableCopy.getPointLoads().map { it.toString() + "\n" }
         )

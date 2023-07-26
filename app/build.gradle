@@ -67,6 +67,6 @@ dependencies {
     debugImplementation 'androidx.compose.ui:ui-tooling'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
 
-    implementation 'com.github.icarob-eng.kstability:kstability:v1.1.0'
+    implementation 'com.github.icarob-eng.kstability:kstability:v1.2.0'
     implementation 'com.github.qawaz:compose-code-editor:2.0.3'
 }

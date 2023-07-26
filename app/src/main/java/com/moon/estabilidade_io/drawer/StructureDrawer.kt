@@ -153,7 +153,7 @@ fun DrawScope.drawStructure(
         if (loadLabels)
             for (n in 0 until  structure.nodes.size) {
                 drawLabel(
-                    structure.nodes[n].toOffset(b),
+                    structure.nodes.sortedBy { it.pos.x }[n].toOffset(b),
                     entry.value.second[n].toString(),
                     textMeasurer,
                     Directions.T * 1.5f + Directions.R,

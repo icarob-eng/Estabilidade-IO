@@ -17,7 +17,7 @@ import com.moon.kstability.Support
 import com.moon.kstability.Vector
 import kotlin.math.sqrt
 
-val sampleA = Structure("Basic Sample A", mutableListOf(
+val sampleA = Structure("Basic Sample A", hashSetOf(
     Node("A", Vector(0,0)).apply {
         Support(this, Support.Gender.SECOND, Vector.Consts.VERTICAL)
     },
@@ -28,7 +28,7 @@ val sampleA = Structure("Basic Sample A", mutableListOf(
         Support(this, Support.Gender.FIRST, Vector.Consts.VERTICAL)
     }
 )).also {
-    Beam(it.nodes.first(), it.nodes.last())
+    Beam(it["A"]!!, it["C"]!!)
 }
 
 @Preview
@@ -43,7 +43,7 @@ fun StructureSampleAPreview() {
     )
 }
 
-val sampleB = Structure("Basic Sample B", mutableListOf(
+val sampleB = Structure("Basic Sample B", hashSetOf(
     Node("C", Vector(0,0)).apply {
         Support(this, Support.Gender.SECOND, Vector.Consts.VERTICAL)
     },
@@ -54,8 +54,8 @@ val sampleB = Structure("Basic Sample B", mutableListOf(
         Support(this, Support.Gender.FIRST, Vector.Consts.VERTICAL)
     }
 )).also {
-    Beam(it.nodes.first(), it.nodes[1])
-    Beam(it.nodes[1], it.nodes.last())
+    Beam(it["C"]!!, it["B"]!!)
+    Beam(it["B"]!!, it["A"]!!)
 }
 
 @Preview
@@ -70,7 +70,7 @@ fun StructureSampleBPreview() {
     )
 }
 
-val trussSample = Structure("Truss sample", mutableListOf(
+val trussSample = Structure("Truss sample", hashSetOf(
     Node("A", Vector(0,0)).apply {
         Support(this, Support.Gender.SECOND, Vector.Consts.VERTICAL)
     },
@@ -85,13 +85,13 @@ val trussSample = Structure("Truss sample", mutableListOf(
         PointLoad(this, Vector(0,-10))
     }
 )).also {
-    Beam(it.nodes.find { node ->  node.name == "A" }!!, it.nodes.find { node -> node.name == "B" }!!)
-    Beam(it.nodes.find { node ->  node.name == "B" }!!, it.nodes.find { node ->  node.name == "C" }!!)
-    Beam(it.nodes.find { node ->  node.name == "D" }!!, it.nodes.find { node ->  node.name == "A" }!!)
-    Beam(it.nodes.find { node ->  node.name == "D" }!!, it.nodes.find { node ->  node.name == "B" }!!)
-    Beam(it.nodes.find { node ->  node.name == "E" }!!, it.nodes.find { node ->  node.name == "B" }!!)
-    Beam(it.nodes.find { node ->  node.name == "E" }!!, it.nodes.find { node ->  node.name == "C" }!!)
-    Beam(it.nodes.find { node ->  node.name == "D" }!!, it.nodes.find { node ->  node.name == "E" }!!)
+    Beam(it["A"]!!, it["B"]!!)
+    Beam(it["B"]!!, it["C"]!!)
+    Beam(it["D"]!!, it["A"]!!)
+    Beam(it["D"]!!, it["B"]!!)
+    Beam(it["E"]!!, it["B"]!!)
+    Beam(it["E"]!!, it["C"]!!)
+    Beam(it["D"]!!, it["E"]!!)
 }  // maybe this isn't the best way to instantiate a structure but whatever, this is just a sample
 
 @Preview
@@ -106,7 +106,7 @@ fun StructureSampleCPreview() {
     )
 }
 
-val trigCircleSample = Structure("Trig Circle Sample", mutableListOf(
+val trigCircleSample = Structure("Trig Circle Sample", hashSetOf(
     Node("Center", Vector(0,0)).also {
         val a = sqrt(3f)/2 * 30
         val b = sqrt(2f)/2 * 30
@@ -129,7 +129,8 @@ val trigCircleSample = Structure("Trig Circle Sample", mutableListOf(
         PointLoad(it, Vector(c,-a))
     },
     Node("A", Vector(1,0))
-)).also { Beam(it.nodes.first(), it.nodes.last()) }
+)
+).also { Beam(it["Center"]!!, it["A"]!!) }
 
 @Preview
 @Composable

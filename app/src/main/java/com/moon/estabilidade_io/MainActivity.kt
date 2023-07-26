@@ -6,6 +6,7 @@ import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
@@ -24,29 +25,20 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.moon.estabilidade_io.drawer.DiagramType
 import com.moon.estabilidade_io.drawer.MainCanvas
-import com.moon.estabilidade_io.drawer.sampleA
-import com.moon.estabilidade_io.drawer.sampleB
 import com.moon.estabilidade_io.ui.components.BottomAppBarSelector
 import com.moon.estabilidade_io.ui.components.BottomSheetContent
 import com.moon.estabilidade_io.ui.theme.EstabilidadeIOTheme
 
 class MainActivity : ComponentActivity() {
+    private val mainVM: MainViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // todo: remove those samples
-        val defaultSampleA = sampleA.copy("Structure Sample")
-        val defaultSampleB = sampleB.copy("Alternative Structure Sample")
-
         setContent {
-            val mainVM: MainViewModel = viewModel()
             val uiState by mainVM.uiState.collectAsState()
-
-            val mainCanvasModifier = Modifier
-                .size(LocalConfiguration.current.smallestScreenWidthDp.dp)
 
             EstabilidadeIOTheme {
                 Scaffold(
@@ -64,23 +56,23 @@ class MainActivity : ComponentActivity() {
                             Triple("DEC", R.drawable.baseline_vertical_align_bottom_24, DiagramType.SHEAR),
                             Triple("DMF", R.drawable.round_rotate_90_degrees_ccw_24, DiagramType.MOMENT)
                         )
-                        BottomAppBarSelector (itemContents = types, modifier = Modifier.height(50.dp))
-                        {diagramType -> mainVM.setDiagramType(diagramType) }
+                        BottomAppBarSelector (
+                            itemContents = types,
+                            modifier = Modifier.height(50.dp),
+                            onItemClick = mainVM::setDiagramType
+                        )
                                 },
                     floatingActionButton = {
                         FloatingActionButton(
                             shape = CircleShape,
-                            onClick = {
-                                if (uiState.framedStructure == defaultSampleA)
-                                    mainVM.setFramedStructure(defaultSampleB)
-                                else
-                                    mainVM.setFramedStructure(defaultSampleA)
-                        }) {
+                            onClick = mainVM::parseYamlValue
+                        ) {
                             Icon(Icons.Default.PlayArrow, null)
                         }
                     }
                 ) {paddingValues ->
-
+                    val mainCanvasModifier = Modifier
+                        .size(LocalConfiguration.current.smallestScreenWidthDp.dp)
 
                     if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
                         Column(modifier = Modifier.padding(paddingValues)) {
