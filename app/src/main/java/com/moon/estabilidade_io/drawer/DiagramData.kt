@@ -38,12 +38,16 @@ data class DiagramData
     val unstableStructure: Structure = structure.deepCopy()  // fixme: this is not a solution...
 
     init {
+        if (structure.getBeams().size > 1)
+            throw IllegalArgumentException("A versão atual não suporta estruturas com mais de uma barra :(")
+
         if (!isStable(structure))  // fixme: this is also not a ideal solution...
             structure.stabilize()
 
-        Log.v("Structure_Data",
+        Log.v("DiagramData",
             "Structure: ${structure.name}\nLoads:\n" +
-                    structure.getPointLoads().map { it.toString() + "\n" }
+                    structure.getPointLoads().map { it.toString() + "\n" } +
+                "DiagramType = $diagramType"
         )
     }
 

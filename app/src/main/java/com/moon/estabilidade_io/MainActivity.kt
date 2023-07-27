@@ -39,7 +39,6 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val uiState by mainVM.uiState.collectAsState()
-
             EstabilidadeIOTheme {
 
                 WrongStructureDialogLauncher(vm = mainVM)

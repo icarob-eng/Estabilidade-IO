@@ -55,14 +55,14 @@ fun WrongStructureDialog(
                     Text(text = errorMessage, modifier = Modifier.background(Color.DarkGray), // todo: use pallet
                         fontFamily = FontFamily.Monospace)
                     Divider(Modifier.padding(8.dp))
-                    Text(
-                        text = "Deseja restaurar os valores digitados para a última versão validada?",
-                        modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center
-                    )
+//                    Text(  // fixme: restore not working (see mainVM.restoreYaml())
+//                        text = "Deseja restaurar os valores digitados para a última versão validada?",
+//                        modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center
+//                    )
                 }
                 Row(horizontalArrangement = Arrangement.SpaceBetween) {
                     TextButton(onClick = onCancel) { Text(text = "Cancelar") }
-                    TextButton(onClick = onRestore) { Text(text = "Restaurar valores") }
+//                    TextButton(onClick = onRestore) { Text(text = "Restaurar valores") }
                 }
             }
         }

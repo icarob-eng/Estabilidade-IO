@@ -26,7 +26,6 @@ class MainViewModel : ViewModel() {
     fun setDiagramType(diagramType: DiagramType) {
         if (_uiState.value.diagramData != null ) _uiState
             .update { it.copy(diagramData = DiagramData(it.diagramData!!.structure, diagramType)) }
-        // todo: make this safe
     }
 
     fun parseYamlValue() {
@@ -47,9 +46,10 @@ class MainViewModel : ViewModel() {
     }
 
     fun restoreYamlValue() {
-        yamlValue = Parsing.serializeStructureToYaml(
-            _uiState.value.diagramData?.structure?: Structure("Nenhuma estrutura")
-        ) // fixme: ain't restoring
+        TODO("Kstability returns wrong structure, when it's stabilized")
+//        yamlValue = Parsing.serializeStructureToYaml(
+//            _uiState.value.diagramData?.structure?: Structure("Nenhuma estrutura")
+//        )
     }
 }
 
@@ -65,7 +65,7 @@ fun WrongStructureDialogLauncher(vm: MainViewModel) {
             errorMessage = vm.exception!!.message ?: "Mensagem não disponível. Consulte os logs.",
             onCancel = {vm.exception = null},
             onRestore = {
-                vm.restoreYamlValue()
+//                vm.restoreYamlValue()  // tod: reimplement this
                 vm.exception = null
             }
         )
