@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name" translatable="false">Estabilidade-IO</string>
+    <string name="title_activity_help">HelpActivity</string>
 </resources>
