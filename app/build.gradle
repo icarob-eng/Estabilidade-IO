@@ -71,4 +71,5 @@ dependencies {
 
     implementation 'com.github.icarob-eng.kstability:kstability:v1.2.0'
     implementation 'com.github.qawaz:compose-code-editor:2.0.3'
+    implementation 'com.github.jeziellago:compose-markdown:0.3.4'
 }

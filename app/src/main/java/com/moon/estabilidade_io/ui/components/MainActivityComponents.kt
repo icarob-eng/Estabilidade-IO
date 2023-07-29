@@ -108,9 +108,10 @@ fun BottomAppBarSelector(
             itemContents.forEach {
                 PlainTooltipBox(tooltip = { Text(text = it.tooltip)}) {
                     Button(
-                        contentPadding = PaddingValues(0.dp),
+                        onClick = { onItemClick(it.diagramType) },
+                        modifier = Modifier.tooltipAnchor(),
                         shape = RoundedCornerShape(5.dp),
-                        onClick = { onItemClick(it.diagramType) }) {
+                        contentPadding = PaddingValues(0.dp)) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Icon(painter = painterResource(id = it.iconId), it.tooltip)
                                 Text(text = it.label, textAlign = TextAlign.Center, fontSize = 10.sp)

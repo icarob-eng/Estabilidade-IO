@@ -80,11 +80,14 @@ class MainActivity : ComponentActivity() {
                         )
                                 },
                     floatingActionButton = {
-                        FloatingActionButton(
-                            shape = CircleShape,
-                            onClick = mainVM::parseYamlValue
-                        ) {
-                            Icon(Icons.Default.PlayArrow, null)
+                        PlainTooltipBox(tooltip = { Text("Mostrar estrutura") }) {
+                            FloatingActionButton(
+                                onClick = mainVM::parseYamlValue,
+                                modifier = Modifier.tooltipAnchor(),
+                                shape = CircleShape
+                            ) {
+                                Icon(Icons.Default.PlayArrow, null)
+                            }
                         }
                     }
                 ) {paddingValues ->
