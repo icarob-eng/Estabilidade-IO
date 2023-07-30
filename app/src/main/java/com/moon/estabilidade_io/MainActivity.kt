@@ -21,6 +21,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltipBox
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -55,7 +56,10 @@ class MainActivity : ComponentActivity() {
                             ) },
                             modifier = Modifier.padding(horizontal = 10.dp),
                             actions = {
-                                PlainTooltipBox(tooltip = { Text("Ajuda") }) {
+                                PlainTooltipBox(
+                                    tooltip = { Text("Ajuda") },
+                                    containerColor = MaterialTheme.colorScheme.background
+                                    ) {
                                     IconButton(
                                         onClick = { startActivity( Intent(
                                                     this@MainActivity.applicationContext,
@@ -80,7 +84,10 @@ class MainActivity : ComponentActivity() {
                         )
                                 },
                     floatingActionButton = {
-                        PlainTooltipBox(tooltip = { Text("Mostrar estrutura") }) {
+                        PlainTooltipBox(
+                            tooltip = { Text("Mostrar estrutura") },
+                            containerColor = MaterialTheme.colorScheme.background
+                        ) {
                             FloatingActionButton(
                                 onClick = mainVM::parseYamlValue,
                                 modifier = Modifier.tooltipAnchor(),

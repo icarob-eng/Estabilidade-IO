@@ -24,6 +24,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltipBox
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -106,7 +107,10 @@ fun BottomAppBarSelector(
     BottomAppBar(modifier) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
             itemContents.forEach {
-                PlainTooltipBox(tooltip = { Text(text = it.tooltip)}) {
+                PlainTooltipBox(
+                    tooltip = { Text(text = it.tooltip)},
+                    containerColor = MaterialTheme.colorScheme.background
+                ) {
                     Button(
                         onClick = { onItemClick(it.diagramType) },
                         modifier = Modifier.tooltipAnchor(),
