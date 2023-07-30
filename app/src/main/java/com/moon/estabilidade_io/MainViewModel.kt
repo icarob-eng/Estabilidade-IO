@@ -72,7 +72,8 @@ fun WrongStructureDialogLauncher(vm: MainViewModel) {
     }
 }
 
-const val defaultSampleStructureYaml = """estrutura: Estrutura exemplo
+const val defaultSampleStructureYaml =
+"""estrutura: Estrutura exemplo
 nós:
   A: [0, 0]
   B: [1, 0]

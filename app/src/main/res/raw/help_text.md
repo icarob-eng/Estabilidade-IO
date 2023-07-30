@@ -1,144 +1,179 @@
-# kstability
-A Kotlin library for finding reaction forces and charts related to Euler-Bernoulli beams. It's features are:
-- Data classes for representing 2D structures, including loads, supports and beams. At the moment, only single beam structures are supported,
-  but in the future, the system will work with trusses and more complex structures;
-- Finding the reaction loads in the given supports (with a restricted number of support arrangements);
-- Finding Macaulay's functions for a given beam's bending moment and shear and normal stress;
+# Estabilidade-IO v0.0.1-alpha
 
-The algorithm explanations are shown in the [calculation log (pt-Br)](https://github.com/icarob-eng/kstability/blob/main/memoria_de_calculo.md).
+## Apresentação do acesso antecipado
+Olá! E obrigado por testar a versão `0.0.1-alpha` do Estabilidade-IO, um projeto Livre e de
+Código Aberto feito principalmente por [Ícaro Cortês](https://github.com/icarob-eng).
 
-## Installation
-### Gradle
-The library could be installed via Jitpack, so first you need to add Jitpack to your Gradle dependencies repositories:
-```groovy
-repositories {
-  ...
-  maven { url 'https://jitpack.io' }
-}
-```
-Then, add the library via the following reference:
-```groovy
-dependecies {
-  ...
-  implementation 'com.github.icarob-eng.kstability:kstability:v1.0.1'
-}
-```
-There are 4 possible build targets (only jvm is actually tested):
-- `com.github.icarob-eng.kstability:kstability:{version}`
-- `com.github.icarob-eng.kstability:kstability-native:{version}`
-- `com.github.icarob-eng.kstability:kstability-jvm:{version}`
-- `com.github.icarob-eng.kstability:kstability-js:{version}`
+Tenha em mente que o principal objetivo dessa versão é permitir um aceso antecipado ao programa,
+nada aqui pode ser considerado parte do produto final, muitas coisas ainda vão mudar e muitos erros
+serão econtrados (incluindo os já identidicados abaixo), só estou publicando esta versão para fins
+de testes com o público. Enfatizo: **o program ainda é instável e deve ser verificado sempre que
+possível**. Além disso, como sou um desenvolvedor solo, novas versões devem demorar a serem
+publicadas.
 
-### Git
-You also can just clone the repository via git:
-```bash
-$ git clone https://github.com/icarob-eng/kstability.git
-```
+Dessa forma, se por algum motivo encontrar algum bug ou algo que acredita que está errado, por favor
+relate o problema, enviando contexto e capturas de tela aplicáveis, numa issue no repositório Github
+do projeto: [github.com/icarob-eng/Estabilidade-IO](https://github.com/icarob-eng/Estabilidade-IO),
+ou, se preferir, via e-mail para `icaro.bruno@escolar.ifrn.edu.br`. Estas são as informações de
+contato do desenvolvedor.
 
-## Usage
-### Instantiating the models
+Mais uma vez obrigado por tetsar a versão alpha e vamos aos negócios.
 
-There are 6 classes used to describe a structure:
-- Node: a defined point where loads can be applied and where beams and supports can be based on;
-- Support: a structure support, with unknown reaction loads to be calculated;
-- Beam: the library's object of analysis. It's used to determine the plot orientations, and it's defined by two nodes, at the ends;
-- Point Load: a load vector applied in a given node;
-- Distributed Load: a load vector distributed in a given line (constrained by two node);
-- Structure: used to hold all the nodes and general information;
+### Limitações e erros diagnosticados
+Os itens aqui listados já foram identificados e serão resolvidos assim que possível (exceto se
+indicado contrário).
+- A única forma de entrar com dados é editando um yaml, o que será explciado abaixo;
+- No momento o sistema só considera vigas de Euler-Bernoulli simples, com um apoio de primerio e
+outro de segundo gênero, ou um único apoio de terceiro gênero;
+- Rótulas e qualquer outra forma de ligar duas vigas ou partir uma, ainda não foram implementadas, — 
+de fato, fiz com que o programa só aceite uma única barra, para evitar comportamento inesperado;
+- Apesar da estrutura de código bem evidente, o programa ainda não salva nem carrega dados da
+memória do aparelho, de modo que qualquer forma de salvamento deve ser feito copiando e colando o
+texto;
+- As mensagens de erro estão em múltiplas línguas (embora que, mensagens de erros de sintaxe
+estejam fora de meu controle);
+- Não tem nenhuma forma de inserir carga de momento fletor — isso foi um erro bobo mesmo;
+- O aplicativo tem uma paleta de cores estranha que não se comporta bem com as mudanças de modo
+noturno e diurno;
 
-Note that: bending moment loads are represented in the system as scalar values in a given node.
+Mais problemas do que os que estão aí eu provavelmente não estou ciente e gostaria de ser informado!
 
-By the way that the library is defined now, a structure holds a list of node and the node holds all the loads and supports. This implies that:
-- First instantiate the `Structure`;
-- Then instantiate the `Nodes` and add then to the `Structure` (could be passed in the `Structure` constructor, in a `hashSet`);
-- Finally, in each node add the loads, beams and supports;
+## Insersação de dados de estrutura
+O aplicativo tem como método de entrada de dados uma notação bem popular chamado YAML (sigla para
+YAML Ain't a Markup Language — sim, uma sigla recursiva), para isso, basta escrever seções com as
+palavras-chave indicadas abaixo e dentro das seções, se usa um espaçamento duplo (dois espaços) para
+adicionar elementos pertecentes.
 
-#### Code sample
-The simplest way to declare a structure is:
-```kotlin
-val sampleStructure = Structure(
-    name = "My sample structure",
-    nodes = hashSetOf(
-        Node(name = "A", pos = Vector(x = 0, y = 0)),
-        Node("B", Vector(0, 1)),
-        Node("C", Vector(0, 2))
-    )
-)
-Beam(node1 = sampleStructure["A"], node2 = sampleStructure["C"])
-Support(node = sampleStructure["A"], gender = Support.Gender.FIRST, dir = Vector.VERTICAL)
-Support(sampleStructure["C"], Support.Gender.SECOND, Vector.VERTICAL)
-PointLoad(node = sampleStructure["B"], vector = Vector(0, -30))
-DistributedLoad(node1 = sampleStructure["B"], node2 = sampleStructure["C"], vector = Vector(0,-10))
-```
-`Vector.VERTICAL` is a const default of `Vector(0 ,1)`.
+> Letras maiúsculas *provavelmente* podem ser ignoradas, mas **os acentos são necessários**.
 
-The faster way of declaring the same structure is by using kotlin scope functions:
-```kotlin
-val sampleStructure = Structure("My sample structure",
-    hashSetOf(
-        Node("A", Vector(0, 0)).apply { Support(it, Support.Gender.FIRST, Vector.VERTICAL) },
-        Node("B", Vector(0, 1)).apply { PointLoad(it, Vector(0, -30)) },
-        Node("C", Vector(0, 2)).apply { Support(it, Support.Gender.SECOND, Vector.VERTICAL) }
-    )
-)
-Beam(sampleStructure["A"], sampleStructure["C"])
-DistributedLoad(sampleStructure["B"], sampleStructure["C"], Vector(0,-10))
-```
-
-If you are using the JVM, the library also have a Yaml parser, to instantiate a `Structure` from String, which could be
-useful for basic user input and saving data in files.
-
-As it is, the library uses PT-BR only declarations and has no current support for other languages (good first issue?).
-
-The following example defines most of the syntax for Yaml declarations:
+> O `#` indica comentário, ou seja, o que estiver a direita dele, na mesma linha, será ignorado. Só
+estou usando isso para facilitar a compreensão mesmo. 
 ```yaml
----
-estrutura: Sample Structure
-nós:
-  A: [0, 0]  # node name: position vector
-  B: 
-    x: 0
-    y: 1
-  C: [0, 2]
+estrutura: Estrutura exemplo 
+# nome da estrutura (limitado pela linha)
+nós:  # seção de nós
+  A: [0, 0]  # nome do nó: posição
+  B:
+    x: 1  # esta notação também é válida
+    y: 0
+  C:
+    - 2  # esta também
+    - 0
+# as seções podem ou não serem
+#  separadas por quantos espaços quiser
 apoios:
-  A:  # reference to the applied node
-    gênero: 1
+  A:  # nome do apoio que será aplicado
+    gênero: 1  # apoio de primeiro gênero
     direção: vertical
   C:
     gênero: 2
-    direção: [0, 1]  # vertical and horizontal are also keywords for vectors
+    direção: [0, 1]
+    # outra forma de indicar direção vertical
+    
 barras:
-  - [A, C]  # this connects node A to node C
+- [A, C]  # barra entre A e C
+# esta notação é importante
 cargas:
-  F1:  # random unused name
-    nó: B  # applied node
+  F1: # esse F1 não significa absolutamente nada
+    nó: B
     direção: vertical
-    módulo: -30
+    módulo: -20
   F2:
-    nós: [B, C]  # distributed load between node B and C
-    vetor: [0, -10]  # vetor or (direção and módulo) are two equivalent syntax for declaring a load
-...
+    nó: [B, C]  # dois nós = carga distribuída
+    vetor: [3, 4]  # carga inclinada
+```
+Lembre-se de que:
+- Um nó deve ter um nome único que deve começar com uma letra;
+- Se um nome de nó se repetir, só será considerado o último;
+- A estrutura precisa ser isoestática;
+- Uma barra só pode ser aplicada entre apenas dois nós;
+- Para cargas, a notação de `vetor` ou a notação `módulo` + `direção` são válidas;
+- As palavras `vertical` e `horizontal` substituem vetores;
+- Não tem como entrar com momento fletor — sorry, tinha esquecido;
+
+### Notações de vetor válidas
+As notações válidas de vetor são:
+```yaml
+vetor1: [3, 4]
+
+vetor2:
+  x: 3
+  y: 4
+
+vetor3:
+  - 3
+  - 4
+  
+vetor4: vertical
+
+vetor5: horizontal
+```
+### Especificações de tipos aceitos
+```yaml
+estrutura: Só aceita texto
+
+nós:
+  nome_do_nó: vetor  # posição do nó
+
+apoios:
+  gênero: número
+  direção: vetor
+  # o módulo do vetor é desconsiderado, aqui
+
+barras:
+  - [nome_do_nó, outro_nó]
+
+cargas:
+  carga_pontual1:
+    nó: nome_do_nó
+    vetor: vetor
+  carga_pontual2:
+    nó: nome_do_nó
+    módulo: número
+    direção: vetor
+  # o vetor é normalizado e multiplicado
+  #  pelo módulo
+  carga_distribuída1:
+    nó: [nome_do_nó, outro_nó]
+    vetor: vetor
+  carga_distribuída2:
+    nó: [nome_do_nó, outro_nó]
+    módulo: número
+    direção: vetor
 ```
 
-### 2. Using the `StructureSolver`
+## Exibição e tipos de diagrama
+Todos os botões possuem dica de ferramenta quando pressionados por um longo período, mas aqui vai
+uma explicação do que eles fazem:
 
-The `StructureSolver` class is made to facilitate the calculations and plotting routines, simplifying the entire process to those given steps.
-All its public fields and methods can be used. For more information read the source code's documentation.
+### Mostrar estrutura
+Este botão faz com que o aplicativo tente compilar os dados inseridos e mostrar a estrutura. Se
+algum erro de digitação for feito (erros de sintaxe YAML), o aplicativo deve mostrar uma mensagem
+apontando a linha do problema; se o programa não conseguir estabilizar a estrutura ou encontrar
+algum outro erro, como campos faltando, também será indicado; da mesma forma, se algo
+inesperado acontecer, deve aparecer uma mensagem explicando.
 
-### 3. Making the diagrams
-The diagrams are generated completely by the `Diagrams.getDiagram()`. Just need to pass the analyzed `Structure`,
-the focused `Beam`, the diagram function to be plotted and the step size (related to the horizontal resolution,
-the smaller the step, the more points will be plotted). The diagram function should be passed as a reference to one of
-those functions: `generateNormalFunction`, `generateShearFunction` and `generateMomentFunction`.
+Isto pode ser uma boa ferramenta para identificar bugs.
 
-Example: generating the Shear Stress Diagram for a given `structure`, `beam` with step of 0.01:
-`Diagrams.getDiagrams(structure, beam, generateShearFunction, 0.01F)`
+### Tipos de diagrama
+O aplicativo possui seis formas de vizualização, sendo elas:
+- **Estrutrua**, onde se mostra apenas os apoios, barras e nós;
+- **Cargas** aplicadas, sem mostrar as forças de reação;
+- **Reações**, que também exibe as cargas, bem como o resto da estrutura;
+- **DEN**: Diagrama de Esforço Normal;
+- **DEC**: Diagrama de Esforço Cortante;
+- **DMF**: Diagrama de Momento Fletor;
 
-The method returns a pair: the first item is a pair of lists, representing the x and y points of the result plot;
-the second item is a list of `Ploynomial`s that where used to generate the x and y values.
+Quando clicado nas últimas 3 opções, o sistema tenta cálcular os pontos dos gráficos, o que pode
+gerar erros (não sei como).
 
-## Contribute
-For any changes, an issue is first required.
+Nas vizualizações de diagramas, o programa também dá o polinômio associado a cada seção da
+estrutura.
 
-## See also
-- [Estabilidade-IO](https://github.com/icarob-eng/Estabilidade-IO/), a Android client implementation for Kstability.
+## Conclusão
+Espero que faça proveito do aplicativo ao qual investi tanto tempo! Em caso de dúvidas, comentários,
+requisições ou problemas, entre em contato pelos meios especificados acima.
+
+> Vejo você na próxima versão!
+> 
+> — Ícaro.

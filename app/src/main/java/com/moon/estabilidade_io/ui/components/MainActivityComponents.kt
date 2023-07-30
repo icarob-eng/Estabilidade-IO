@@ -175,7 +175,7 @@ fun YamlTextField(value: String, onValueChange: (String) -> Unit, modifier: Modi
                 lineTops.forEachIndexed { index, top ->
                     Text(
                         modifier = Modifier.offset(y = with(density) { top.toDp() }),
-                        text = index.toString(),
+                        text = (index + 1).toString(),
                         fontFamily = FontFamily.Monospace
                     )
                 }
