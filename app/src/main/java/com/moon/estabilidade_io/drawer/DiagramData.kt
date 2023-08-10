@@ -5,7 +5,6 @@ import com.moon.kstability.Axes
 import com.moon.kstability.Beam
 import com.moon.kstability.Diagrams
 import com.moon.kstability.Polynomial
-import com.moon.kstability.Stabilization.isStable
 import com.moon.kstability.Stabilization.stabilize
 import com.moon.kstability.Structure
 import com.moon.kstability.Vector
@@ -18,8 +17,6 @@ import kotlin.math.absoluteValue
  *
  * @property structure Base structure for all calculations, which is stabilized.
  * @property diagramType Selects which diagram data will be generated.
- * @property unstableStructure A deep copy of the structure that has not been stabilized. Used for
- * plotting not stabilized moment loads.
  * @property maxSize Calculates the max horizontal length of the structure.
  * @property meanPoint Finds the structures center, from its nodes.
  * @property maxLoad Finds the load (point or distributed) with the biggest length,
@@ -35,14 +32,11 @@ data class DiagramData
     val structure: Structure,
     val diagramType: DiagramType
 ) {
-    val unstableStructure: Structure = structure.deepCopy()  // fixme: this is not a solution...
-
     init {
+        structure.stabilize()
+
         if (structure.getBeams().size > 1)
             throw IllegalArgumentException("A versão atual não suporta estruturas com mais de uma barra :(")
-
-        if (!isStable(structure))  // fixme: this is also not a ideal solution...
-            structure.stabilize()
 
         Log.v("DiagramData",
             "Structure: ${structure.name}\nLoads:\n" +

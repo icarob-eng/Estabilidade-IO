@@ -12,7 +12,7 @@ android {
         minSdk 22
         targetSdk 33
         versionCode 1
-        versionName "0.0.1-alpha"
+        versionName "0.1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -69,7 +69,7 @@ dependencies {
     debugImplementation 'androidx.compose.ui:ui-tooling'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
 
-    implementation 'com.github.icarob-eng.kstability:kstability:v1.2.0'
+    implementation 'com.github.icarob-eng.kstability:kstability:v1.3.0'
     implementation 'com.github.qawaz:compose-code-editor:2.0.3'
     implementation 'com.github.jeziellago:compose-markdown:0.3.4'
 }

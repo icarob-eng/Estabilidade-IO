@@ -87,15 +87,12 @@ fun DrawScope.drawStructure(
     }
 
     structure.nodes.map {
-        val moment = if (data.diagramType == DiagramType.LOADS)
-            data.unstableStructure[it.name]!!.momentum // fixme: this is not a real solution...
-        else it.momentum
-
+        val moment = it.momentum - it.reactionMomentum
         if (moment != 0f) {
             drawMoment(
                 appliedNodeOffset = it.toOffset(b),
                 clockWise = moment < 0f,
-                isReaction = (moment == it.momentum) && it.isMomentReaction,
+                isReaction = it.reactionMomentum != 0f,
                 s = ss
             )
             if (loadLabels)

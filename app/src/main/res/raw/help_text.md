@@ -1,15 +1,15 @@
-# Estabilidade-IO v0.0.1-alpha
+# Estabilidade-IO v0.1.0
 
 ## Apresentação do acesso antecipado
-Olá! E obrigado por testar a versão `0.0.1-alpha` do Estabilidade-IO, um projeto Livre e de
+Olá! E obrigado por testar a versão `0.1.0` do Estabilidade-IO, um projeto Livre e de
 Código Aberto feito principalmente por [Ícaro Cortês](https://github.com/icarob-eng).
 
 Tenha em mente que o principal objetivo dessa versão é permitir um aceso antecipado ao programa,
 nada aqui pode ser considerado parte do produto final, muitas coisas ainda vão mudar e muitos erros
 serão econtrados (incluindo os já identidicados abaixo), só estou publicando esta versão para fins
-de testes com o público. Enfatizo: **o program ainda é instável e deve ser verificado sempre que
-possível**. Além disso, como sou um desenvolvedor solo, novas versões devem demorar a serem
-publicadas.
+de testes com o público. Enfatizo: **o program ainda é instável e seus resultados devem ser
+verificados sempre que possível**. Além disso, como sou um desenvolvedor solo, novas versões devem
+demorar a serem publicadas.
 
 Dessa forma, se por algum motivo encontrar algum bug ou algo que acredita que está errado, por favor
 relate o problema, enviando contexto e capturas de tela aplicáveis, numa issue no repositório Github
@@ -30,9 +30,6 @@ de fato, fiz com que o programa só aceite uma única barra, para evitar comport
 - Apesar da estrutura de código bem evidente, o programa ainda não salva nem carrega dados da
 memória do aparelho, de modo que qualquer forma de salvamento deve ser feito copiando e colando o
 texto;
-- As mensagens de erro estão em múltiplas línguas (embora que, mensagens de erros de sintaxe
-estejam fora de meu controle);
-- Não tem nenhuma forma de inserir carga de momento fletor — isso foi um erro bobo mesmo;
 - O aplicativo tem uma paleta de cores estranha que não se comporta bem com as mudanças de modo
 noturno e diurno;
 
@@ -80,7 +77,10 @@ cargas:
     módulo: -20
   F2:
     nó: [B, C]  # dois nós = carga distribuída
-    vetor: [3, 4]  # carga inclinada
+    vetor: [3, 4]  # carga distirbuída
+  F3:
+    nó: B
+    módulo: 10  # módulo
 ```
 Lembre-se de que:
 - Um nó deve ter um nome único que deve começar com uma letra;
@@ -89,7 +89,6 @@ Lembre-se de que:
 - Uma barra só pode ser aplicada entre apenas dois nós;
 - Para cargas, a notação de `vetor` ou a notação `módulo` + `direção` são válidas;
 - As palavras `vertical` e `horizontal` substituem vetores;
-- Não tem como entrar com momento fletor — sorry, tinha esquecido;
 
 ### Notações de vetor válidas
 As notações válidas de vetor são:
@@ -140,6 +139,9 @@ cargas:
     nó: [nome_do_nó, outro_nó]
     módulo: número
     direção: vetor
+  momento_fletor:
+    nó: nome_do_nó
+    módulo: intensidade_do_momento
 ```
 
 ## Exibição e tipos de diagrama
