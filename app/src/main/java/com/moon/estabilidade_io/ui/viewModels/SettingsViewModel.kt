@@ -4,6 +4,9 @@ import android.app.Activity
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -28,7 +31,9 @@ class SettingsViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(SettingsActivityState())
     val uiState = _uiState.asStateFlow()
 
-    fun cleearDataStore(context: Context) { CoroutineScope(Dispatchers.IO).launch {
+    var showColors by mutableStateOf(false)
+
+    fun clearDataStore(context: Context) { CoroutineScope(Dispatchers.IO).launch {
         context.dataStore.edit { it.clear() }
         (context as Activity).finishAndRemoveTask()
         exitProcess(0)
@@ -50,7 +55,10 @@ class SettingsViewModel : ViewModel() {
 
 data class SettingsActivityState (
     val showEdges: Boolean = DrawingPreferences.showEdges,
-    val useRollerB: Boolean = DrawingPreferences.useRollerB
+    val useRollerB: Boolean = DrawingPreferences.useRollerB,
+    val baseScale: Float = DrawingPreferences.baseScale.value,
+    val textSize: Float = DrawingPreferences.textSize.value,
+    val chartAbsWidth: Float = DrawingPreferences.chartAbsWidth
 )
 
 object PreferencesKeys {
