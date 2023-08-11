@@ -4,12 +4,16 @@ package com.moon.estabilidade_io.ui.screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -61,6 +65,12 @@ fun SettingsScreen() {
                 Row {
                     Text(text = "Mostrar bordas")
                     Switch(checked = state.showEdges, onCheckedChange = {settingsVm.showEdgesToggle()})
+                }
+
+                OutlinedButton(onClick = { settingsVm.cleearDataStore(context) }) {
+                    Icon(Icons.Default.Warning, contentDescription = "")
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(text = "Limpar preferências.\nIsso reinicia o app")
                 }
             }
         }

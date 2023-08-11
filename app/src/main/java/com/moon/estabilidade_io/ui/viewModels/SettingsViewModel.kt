@@ -1,5 +1,6 @@
 package com.moon.estabilidade_io.ui.viewModels
 
+import android.app.Activity
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -19,12 +20,19 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.system.exitProcess
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 class SettingsViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(SettingsActivityState())
     val uiState = _uiState.asStateFlow()
+
+    fun cleearDataStore(context: Context) { CoroutineScope(Dispatchers.IO).launch {
+        context.dataStore.edit { it.clear() }
+        (context as Activity).finishAndRemoveTask()
+        exitProcess(0)
+    }}
 
     fun showEdgesToggle() = _uiState.update { it.copy(showEdges = !it.showEdges) }
 

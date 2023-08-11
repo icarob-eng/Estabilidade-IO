@@ -10,7 +10,7 @@ object DrawingPreferences {
     /**
      * Base unit: 1 meter = 50 dp, which means: 3m beam would measure, by default, 150 dp
      */
-    var baseScale = 50.dp
+    var baseScale = 50.dp  // configurable
         private set
 
     // positions the scale label
@@ -20,7 +20,7 @@ object DrawingPreferences {
         private set
 
     // --- text configs ---
-    var textSize = 20.sp
+    var textSize = 20.sp  // configurable
         private set
     var textLineSize = 30.sp
         private set
@@ -29,18 +29,18 @@ object DrawingPreferences {
     // scale of the hinge (default size is 1 m square)
     var supportSide = 1/4f
         private set
-    var useRollerB = false
+    var useRollerB = false  // configurable
         private set
 
     // --- edges and widths configs ---
-    var showEdges = true
+    var showEdges = true  // configurable
         private set
     var beamWidth = 1/20f
         private set
     var edgesWidth = beamWidth/4
         private set
 
-    // --- colors ---
+    // --- colors ---  // use hex
     var supportColor1 = Color.LightGray
         private set
     var supportColor2 = Color.DarkGray
@@ -66,7 +66,7 @@ object DrawingPreferences {
     var momentDiagramColor = Color.Green
         private set
 
-    var chartAbsWidth = 1f
+    var chartAbsWidth = 1f  // configurable
         private set
 
     fun updateFromSettingsState(state: SettingsActivityState) {
