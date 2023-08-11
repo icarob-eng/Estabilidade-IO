@@ -25,11 +25,11 @@ import kotlin.math.absoluteValue
 import kotlin.math.sign
 
 fun DrawScope.drawScaleLabel(textMeasurer: TextMeasurer, scaleValue: Float) {
-    val s = Preferences.baseScale.toPx()
+    val s = DrawingPreferences.baseScale.toPx()
 
     val baseOffset = Offset(
-        Preferences.scaleRightMargin.toPx(),
-        (size.height - Preferences.scaleBottomMargin.toPx())
+        DrawingPreferences.scaleRightMargin.toPx(),
+        (size.height - DrawingPreferences.scaleBottomMargin.toPx())
     )
     val endOffset = baseOffset +
             Offset(s * scaleValue, 0f)
@@ -39,16 +39,16 @@ fun DrawScope.drawScaleLabel(textMeasurer: TextMeasurer, scaleValue: Float) {
     drawText(
         textMeasurer,
         "1 m",
-        baseOffset + Offset(0f, - Preferences.textLineSize.toPx()),
-        TextStyle(color = Color.Black, fontSize = Preferences.textSize)
+        baseOffset + Offset(0f, - DrawingPreferences.textLineSize.toPx()),
+        TextStyle(color = Color.Black, fontSize = DrawingPreferences.textSize)
     )
 }
 
 private fun DrawScope.drawTriangle(
     topPoint: Offset,
-    s: Float = Preferences.baseScale.toPx() * Preferences.supportSide,
-    showEdges: Boolean = Preferences.showEdges,
-    color: Color = Preferences.supportColor1
+    s: Float = DrawingPreferences.baseScale.toPx() * DrawingPreferences.supportSide,
+    showEdges: Boolean = DrawingPreferences.showEdges,
+    color: Color = DrawingPreferences.supportColor1
 ) {
     val path = Path()
     path.moveTo(topPoint.x, topPoint.y)
@@ -62,20 +62,20 @@ private fun DrawScope.drawTriangle(
     if (showEdges)
         drawPath(
             path = path,
-            color = Preferences.supportColor3,
-            style = Stroke(s * Preferences.edgesWidth)
+            color = DrawingPreferences.supportColor3,
+            style = Stroke(s * DrawingPreferences.edgesWidth)
         )
 }
 
 private fun DrawScope.drawCenteredHatches(
     middlePoint: Offset,
     nHatches: Int = 5,
-    s: Float = Preferences.baseScale.toPx() * Preferences.supportSide
+    s: Float = DrawingPreferences.baseScale.toPx() * DrawingPreferences.supportSide
 ) {
 
     val endOffset = middlePoint + Offset(s/2, 0f)
     drawLine(
-        color = Preferences.supportColor2,
+        color = DrawingPreferences.supportColor2,
         start = middlePoint + Offset(-s/2 - s/5, 0f),
         end = endOffset,
         strokeWidth = s/15
@@ -84,7 +84,7 @@ private fun DrawScope.drawCenteredHatches(
     val h = s/8
     for (i in 0 downTo -nHatches) {
         drawLine(
-            color = Preferences.supportColor2,
+            color = DrawingPreferences.supportColor2,
             start = endOffset + Offset(h * i, 0f),
             end = endOffset + Offset(h * (i - 1), h),
             strokeWidth = s/25
@@ -94,31 +94,31 @@ private fun DrawScope.drawCenteredHatches(
 
 fun DrawScope.drawRoller(
     appliedNodeOffset: Offset,
-    s: Float = Preferences.baseScale.toPx() * Preferences.supportSide
+    s: Float = DrawingPreferences.baseScale.toPx() * DrawingPreferences.supportSide
 ) {
 
     drawCenteredHatches(appliedNodeOffset + Offset(0f, s * 4 / 5))
     drawCircle(
-        color = Preferences.supportColor1,
+        color = DrawingPreferences.supportColor1,
         radius = s / 2 * 4 / 5,
         center = appliedNodeOffset + Offset(0f, s / 2 * 4 / 5)
     )
-    if (Preferences.showEdges)
+    if (DrawingPreferences.showEdges)
         drawCircle(
-            color = Preferences.supportColor3,
+            color = DrawingPreferences.supportColor3,
             radius = s / 2 * 4 / 5,
             center = appliedNodeOffset + Offset(0f, s / 2 * 4 / 5),
-            style = Stroke(s * Preferences.edgesWidth)
+            style = Stroke(s * DrawingPreferences.edgesWidth)
         )
 }
 
 fun DrawScope.drawRollerB(
     appliedNodeOffset: Offset,
-    s: Float = Preferences.baseScale.toPx() * Preferences.supportSide
+    s: Float = DrawingPreferences.baseScale.toPx() * DrawingPreferences.supportSide
 ) {
     drawTriangle(appliedNodeOffset)
     drawLine(
-        color = Preferences.supportColor2,
+        color = DrawingPreferences.supportColor2,
         start = appliedNodeOffset + Offset(-s / 2 - s / 5, s * 9 / 10),
         end = appliedNodeOffset + Offset(s / 2, s * 9 / 10),
         strokeWidth = s / 15
@@ -127,7 +127,7 @@ fun DrawScope.drawRollerB(
 
 fun DrawScope.drawHinge(
     appliedNodeOffset: Offset,
-    s: Float = Preferences.baseScale.toPx() * Preferences.supportSide
+    s: Float = DrawingPreferences.baseScale.toPx() * DrawingPreferences.supportSide
 ) {
     drawCenteredHatches(appliedNodeOffset + Offset(0f, s * 4 / 5))
     drawTriangle(appliedNodeOffset)
@@ -135,7 +135,7 @@ fun DrawScope.drawHinge(
 
 fun DrawScope.drawFixed(
     appliedNodeOffset: Offset,
-    s: Float = Preferences.baseScale.toPx() * Preferences.supportSide
+    s: Float = DrawingPreferences.baseScale.toPx() * DrawingPreferences.supportSide
 ) {
     rotate(90f, appliedNodeOffset) {
         scale(s, appliedNodeOffset) {
@@ -145,31 +145,31 @@ fun DrawScope.drawFixed(
 
 fun DrawScope.drawBeam(
     offset1: Offset, offset2: Offset,
-    s: Float = Preferences.baseScale.toPx()
+    s: Float = DrawingPreferences.baseScale.toPx()
 ) {
     drawLine(
-        color = Preferences.beamColor1,
+        color = DrawingPreferences.beamColor1,
         start = offset1,
         end = offset2,
-        strokeWidth = s * Preferences.beamWidth,
+        strokeWidth = s * DrawingPreferences.beamWidth,
     )
-    if (Preferences.showEdges) {
+    if (DrawingPreferences.showEdges) {
         val edgeOffset = (offset2 - offset1)/(offset2 - offset1).getDistance() *
-                s * (Preferences.beamWidth/2 - Preferences.edgesWidth/4)
+                s * (DrawingPreferences.beamWidth/2 - DrawingPreferences.edgesWidth/4)
         translate(- edgeOffset.y, edgeOffset.x) {
             drawLine(
-                color = Preferences.beamColor2,
+                color = DrawingPreferences.beamColor2,
                 start = offset1,
                 end = offset2,
-                strokeWidth = s * Preferences.edgesWidth
+                strokeWidth = s * DrawingPreferences.edgesWidth
             )
         }
         translate(+ edgeOffset.y,- edgeOffset.x) {
             drawLine(
-                color = Preferences.beamColor2,
+                color = DrawingPreferences.beamColor2,
                 start = offset1,
                 end = offset2,
-                strokeWidth = s * Preferences.edgesWidth
+                strokeWidth = s * DrawingPreferences.edgesWidth
             )
         }
     }
@@ -177,18 +177,18 @@ fun DrawScope.drawBeam(
 
 fun DrawScope.drawNode(
     appliedNodeOffset: Offset,
-    s: Float = Preferences.baseScale.toPx()
+    s: Float = DrawingPreferences.baseScale.toPx()
 ) {
     drawCircle(
-        color = Preferences.nodeColor1,
+        color = DrawingPreferences.nodeColor1,
         center = appliedNodeOffset,
-        radius = s * Preferences.beamWidth / 2
+        radius = s * DrawingPreferences.beamWidth / 2
     )
     drawCircle(
-        color = Preferences.nodeColor2,
+        color = DrawingPreferences.nodeColor2,
         center = appliedNodeOffset,
-        radius = s * (Preferences.beamWidth/2 - Preferences.edgesWidth/4),
-        style = Stroke(s * Preferences.edgesWidth)
+        radius = s * (DrawingPreferences.beamWidth/2 - DrawingPreferences.edgesWidth/4),
+        style = Stroke(s * DrawingPreferences.edgesWidth)
     )
 }
 
@@ -196,9 +196,9 @@ fun DrawScope.drawPointLoad(
     appliedNodeOffset: Offset,
     loadVector: Vector,
     isReaction: Boolean = false,
-    s: Float = Preferences.baseScale.toPx()
+    s: Float = DrawingPreferences.baseScale.toPx()
 ) {
-    val color = if (isReaction) Preferences.reactionColor else Preferences.loadColor
+    val color = if (isReaction) DrawingPreferences.reactionColor else DrawingPreferences.loadColor
 
     scale((loadVector.length()).absoluteValue, appliedNodeOffset) {
         rotateRad(loadVector.rotationArg(), appliedNodeOffset) {
@@ -216,14 +216,14 @@ fun DrawScope.drawPointLoad(
 fun DrawScope.drawDistributedLoad(
     offset1: Offset, offset2: Offset,
     loadVector: Vector,
-    s: Float= Preferences.baseScale.toPx()
+    s: Float= DrawingPreferences.baseScale.toPx()
 ) {
     val path = Path()
     path.moveTo(offset1.x, offset1.y)
     path.lineTo((offset1 - loadVector.toOffset()).x, (offset1 + loadVector.toOffset()).y)
     path.lineTo((offset2 - loadVector.toOffset()).x, (offset2 + loadVector.toOffset()).y)
     path.lineTo(offset2.x, offset2.y)
-    drawPath(path, Preferences.loadColor, style = Stroke(s/128))
+    drawPath(path, DrawingPreferences.loadColor, style = Stroke(s/128))
 
     val vectorNumber = 3
     val iHat = (offset2 - offset1)/(vectorNumber + 1f)
@@ -236,9 +236,9 @@ fun DrawScope.drawDistributedLoad(
 fun DrawScope.drawMoment(
     appliedNodeOffset: Offset,
     clockWise: Boolean, isReaction: Boolean = false,
-    s: Float = Preferences.baseScale.toPx() * Preferences.supportSide
+    s: Float = DrawingPreferences.baseScale.toPx() * DrawingPreferences.supportSide
 ) {
-    val color = if (isReaction) Preferences.reactionColor else Preferences.loadColor
+    val color = if (isReaction) DrawingPreferences.reactionColor else DrawingPreferences.loadColor
 
     scale( if (clockWise) 1f else -1f, 1f, appliedNodeOffset) {
         drawArc(
@@ -291,7 +291,7 @@ fun DrawScope.chart(
     drawPath(
         path = path,
         color = color,
-        style = Stroke(Preferences.chartAbsWidth)
+        style = Stroke(DrawingPreferences.chartAbsWidth)
     )
 }
 
@@ -308,7 +308,7 @@ fun DrawScope.drawLabel(
     appliedNodeOffset: Offset, string: String,
     textMeasurer: TextMeasurer,
     position: Offset,
-    baseDistance: Float = Preferences.baseScale.toPx() * Preferences.supportSide) {
+    baseDistance: Float = DrawingPreferences.baseScale.toPx() * DrawingPreferences.supportSide) {
 
     drawText(
         textMeasurer,
@@ -317,19 +317,19 @@ fun DrawScope.drawLabel(
                 // reference point
                 position * baseDistance -
                 // string top left displacement
-                Offset(0f, Preferences.textLineSize.toPx()/6) * position.y.sign -
+                Offset(0f, DrawingPreferences.textLineSize.toPx()/6) * position.y.sign -
                 // text height discount
-                Offset( Preferences.textSize.toPx()/12, 0f) * string.length.toFloat()/2f,
+                Offset( DrawingPreferences.textSize.toPx()/12, 0f) * string.length.toFloat()/2f,
                 // horizontal centering
         TextStyle(
             color = Color.Black,
-            fontSize = Preferences.textSize / 6,
+            fontSize = DrawingPreferences.textSize / 6,
             textAlign = TextAlign.Center)
     )
 }
 
 fun DrawScope.drawTest(length: Float){
-    val s = Preferences.baseScale.toPx()
+    val s = DrawingPreferences.baseScale.toPx()
 
     drawLine(
         Color.Blue,

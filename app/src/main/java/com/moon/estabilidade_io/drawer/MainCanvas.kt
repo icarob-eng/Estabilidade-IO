@@ -63,7 +63,7 @@ fun MainCanvas(modifier: Modifier, diagramData: DiagramData?) {
         }
         .transformable(transformableState)  // detects rotation and dual touch, etc
     ) {
-        reFrameScale = size.width / (diagramData.maxSize * Preferences.baseScale.toPx()) * 3/5
+        reFrameScale = size.width / (diagramData.maxSize * DrawingPreferences.baseScale.toPx()) * 3/5
         if (undefinedFrame) {
             scaleValue = reFrameScale
             undefinedFrame = false

@@ -33,10 +33,10 @@ fun DrawScope.drawStructure(
 //    drawTest(1f) // draw scale test
     val structure = data.structure
     if (structure.nodes.size == 0) return
-    val b = Basis(data.meanPoint.toOffset(), Preferences.baseScale.toPx(), center)
+    val b = Basis(data.meanPoint.toOffset(), DrawingPreferences.baseScale.toPx(), center)
     // independent of drawScale
-    val s = Preferences.baseScale.toPx() * data.maxSize / 2f
-    val ss = s * Preferences.supportSide
+    val s = DrawingPreferences.baseScale.toPx() * data.maxSize / 2f
+    val ss = s * DrawingPreferences.supportSide
 
     /*
     # Draw order:
@@ -50,7 +50,7 @@ fun DrawScope.drawStructure(
     structure.getSupports().map {
         rotateRad(it.direction.rotationArg(), it.node.toOffset(b)) {
             when (it.gender) {
-                Support.Gender.FIRST -> if (Preferences.useRollerB) drawRollerB(it.node.toOffset(b), ss)
+                Support.Gender.FIRST -> if (DrawingPreferences.useRollerB) drawRollerB(it.node.toOffset(b), ss)
                 else drawRoller(it.node.toOffset(b), ss)
 
                 Support.Gender.SECOND -> drawHinge(it.node.toOffset(b), ss)
@@ -74,7 +74,7 @@ fun DrawScope.drawStructure(
     // --- loads and reactions ---
 
     // here we apply the methods to a copy, so we can compare if the force is or not a reaction
-    val loadScale = Preferences.supportSide * s / data.maxLoad
+    val loadScale = DrawingPreferences.supportSide * s / data.maxLoad
 
     structure.getPointLoads().map {
         if (it.isReaction && data.diagramType != DiagramType.LOADS || !it.isReaction) {
@@ -114,9 +114,9 @@ fun DrawScope.drawStructure(
 
     // --- charts ---
     val color = when (data.diagramType) {
-        DiagramType.NORMAL -> Preferences.normalDiagramColor
-        DiagramType.SHEAR -> Preferences.shearDiagramColor
-        DiagramType.MOMENT -> Preferences.momentDiagramColor
+        DiagramType.NORMAL -> DrawingPreferences.normalDiagramColor
+        DiagramType.SHEAR -> DrawingPreferences.shearDiagramColor
+        DiagramType.MOMENT -> DrawingPreferences.momentDiagramColor
         else -> return
     }
     val yScale = s / data.absYMax
