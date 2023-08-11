@@ -10,7 +10,6 @@ import com.moon.estabilidade_io.drawer.DiagramData
 import com.moon.estabilidade_io.drawer.DiagramType
 import com.moon.estabilidade_io.ui.components.WrongStructureDialog
 import com.moon.kstability.Parsing
-import com.moon.kstability.Structure
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update

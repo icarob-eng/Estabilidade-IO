@@ -16,11 +16,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltipBox
 import androidx.compose.material3.Scaffold
@@ -32,8 +32,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.moon.estabilidade_io.drawer.MainCanvas
 import com.moon.estabilidade_io.ui.activities.HelpActivity
+import com.moon.estabilidade_io.ui.activities.SettingsActivity
 import com.moon.estabilidade_io.ui.components.BottomAppBarSelector
 import com.moon.estabilidade_io.ui.components.BottomSheetContent
+import com.moon.estabilidade_io.ui.components.TooltipImageButton
 import com.moon.estabilidade_io.ui.components.selections
 import com.moon.estabilidade_io.ui.theme.EstabilidadeIOTheme
 
@@ -56,23 +58,27 @@ class MainActivity : ComponentActivity() {
                             ) },
                             modifier = Modifier.padding(horizontal = 10.dp),
                             actions = {
-                                PlainTooltipBox(
-                                    tooltip = { Text("Ajuda") },
-                                    containerColor = MaterialTheme.colorScheme.background
-                                    ) {
-                                    IconButton(
-                                        onClick = { startActivity( Intent(
-                                                    this@MainActivity.applicationContext,
-                                                    HelpActivity::class.java
-                                                ))
-                                        },
-                                        modifier = Modifier.tooltipAnchor()
-                                    ) {
-                                        Icon(
-                                            painter = painterResource(id = R.drawable.round_help_outline_24),
-                                            contentDescription = "Ajuda"
-                                        )
-                                    }
+                                TooltipImageButton(
+                                    hint = "Ajuda",
+                                    onClick = { startActivity( Intent(
+                                        this@MainActivity.applicationContext,
+                                        HelpActivity::class.java
+                                    )) }) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.round_help_outline_24),
+                                        contentDescription = "Ajuda"
+                                    )
+                                }
+                                TooltipImageButton(
+                                    hint = "Configurações",
+                                    onClick = { startActivity( Intent(
+                                        this@MainActivity.applicationContext,
+                                        SettingsActivity::class.java
+                                    )) }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Settings,
+                                        contentDescription = "Configurações"
+                                    )
                                 }
                             }
                         ) },

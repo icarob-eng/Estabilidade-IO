@@ -19,6 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.moon.estabilidade_io.R
+import com.moon.estabilidade_io.ui.components.BackButton
 import com.moon.estabilidade_io.ui.theme.EstabilidadeIOTheme
 import dev.jeziellago.compose.markdowntext.MarkdownText
 
@@ -29,6 +30,7 @@ fun HelpScreen() {
             topBar = { CenterAlignedTopAppBar(
                 title = { Text(text = "Ajuda e informações") },
                 modifier = Modifier.height(32.dp),
+                navigationIcon = { BackButton() },
                 scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
             ) }
         ){ paddingValues ->
