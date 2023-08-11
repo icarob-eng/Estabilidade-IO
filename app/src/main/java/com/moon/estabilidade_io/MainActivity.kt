@@ -38,6 +38,7 @@ import com.moon.estabilidade_io.ui.components.BottomSheetContent
 import com.moon.estabilidade_io.ui.components.TooltipImageButton
 import com.moon.estabilidade_io.ui.components.selections
 import com.moon.estabilidade_io.ui.theme.EstabilidadeIOTheme
+import com.moon.estabilidade_io.ui.viewModels.PreferencesKeys
 
 class MainActivity : ComponentActivity() {
     private val mainVM: MainViewModel by viewModels()
@@ -104,10 +105,13 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 ) {paddingValues ->
+
                     val mainCanvasModifier = Modifier
                         .size(LocalConfiguration.current.smallestScreenWidthDp.dp)
 
                     val diagramData = uiState.diagramData
+
+                    PreferencesKeys.InitPreferences()
 
                     if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
                         Column(modifier = Modifier.padding(paddingValues)) {
